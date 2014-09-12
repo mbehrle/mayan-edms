@@ -1,12 +1,16 @@
 from __future__ import absolute_import
 
 import errno
+import logging
 import os
 
 from django.utils.translation import ugettext_lazy as _
 
 from .settings import (FILESYSTEM_SERVING, SUFFIX_SEPARATOR)
+from .settings import (FILESYSTEM_SERVING,
+    FILESYSTEM_SERVING_RELATIVE_PATHS, SUFFIX_SEPARATOR)
 
+logger = logging.getLogger(__name__)
 
 def assemble_suffixed_filename(filename, suffix=0):
     """
@@ -52,19 +56,29 @@ def fs_create_index_directory(index_instance):
 
 
 def fs_create_document_link(index_instance, document, suffix=0):
+    # FIXME: should probably be 'for' instead of 'if' in case of multiple indexes
     if index_instance.index_template_node.index.name in FILESYSTEM_SERVING:
+        logger.debug('Index name: %s' % index_instance.index_template_node.index.name)
         filename = assemble_suffixed_filename(document.file_filename, suffix)
         filepath = assemble_path_from_list([FILESYSTEM_SERVING[index_instance.index_template_node.index.name], get_instance_path(index_instance), filename])
 
+        if FILESYSTEM_SERVING_RELATIVE_PATHS:
+            pathlevels = len(get_instance_path(index_instance).split(os.path.sep))
+            docfilepath = os.path.sep.join([os.path.sep.join(['..'] * pathlevels),
+                'document_storage', document.file.name])
+        else:
+            docfilepath = document.file.path
+        logger.debug('Index link to the document: %s' % docfilepath)
+
         try:
-            os.symlink(document.file.path, filepath)
+            os.symlink(docfilepath, filepath)
         except OSError as exception:
             if exception.errno == errno.EEXIST:
                 # This link should not exist, try to delete it
                 try:
                     os.unlink(filepath)
                     # Try again
-                    os.symlink(document.file.path, filepath)
+                    os.symlink(docfilepath, filepath)
                 except Exception as exception:
                     raise Exception(_(u'Unable to create symbolic link, file exists and could not be deleted: %(filepath)s; %(exception)s') % {'filepath': filepath, 'exception': exception})
             else:
