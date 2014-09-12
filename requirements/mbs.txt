@@ -1,0 +1,3 @@
+# requirements/mbs.txt
+-r common.txt
+psycopg2
