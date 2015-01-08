@@ -11,7 +11,7 @@ from django.utils.html import strip_tags
 from django.utils.translation import ugettext_lazy as _
 
 from acls.models import AccessEntry
-from documents.models import Document, RecentDocument
+from documents.models import Document
 from permissions.models import Permission
 
 from .forms import DocumentMailForm
@@ -45,25 +45,28 @@ def send_document_link(request, document_id=None, document_id_list=None, as_atta
     next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', post_action_redirect)))
 
     for document in documents:
-        RecentDocument.objects.add_document_for_user(request.user, document)
+        document.add_as_recent_document_for_user(request.user)
 
     if request.method == 'POST':
         form = DocumentMailForm(request.POST, as_attachment=as_attachment)
         if form.is_valid():
-            context = Context({
-                'link': 'http://%s%s' % (Site.objects.get_current().domain, reverse('documents:document_view_simple', args=[document.pk])),
-                'document': document
-            })
-            body_template = Template(form.cleaned_data['body'])
-            body_html_content = body_template.render(context)
-            body_text_content = strip_tags(body_html_content)
 
-            subject_template = Template(form.cleaned_data['subject'])
-            subject_text = strip_tags(subject_template.render(context))
+            for document in documents:
+                context = Context({
+                    'link': 'http://%s%s' % (Site.objects.get_current().domain, document.get_absolute_url()),
+                    'document': document
+                })
+                body_template = Template(form.cleaned_data['body'])
+                body_html_content = body_template.render(context)
+                body_text_content = strip_tags(body_html_content)
 
-            task_send_document.apply_async(args=(subject_text, body_text_content, request.user.email, form.cleaned_data['email']), kwargs={'document_ids': [document.pk for document in documents]}, queue='mailing')
+                subject_template = Template(form.cleaned_data['subject'])
+                subject_text = strip_tags(subject_template.render(context))
+
+                task_send_document.apply_async(args=(subject_text, body_text_content, request.user.email, form.cleaned_data['email']), kwargs={'document_id': document.pk, 'as_attachment': as_attachment}, queue='mailing')
+
+            # TODO: Pluralize
             messages.success(request, _('Successfully queued for delivery via email.'))
-
             return HttpResponseRedirect(next)
     else:
         form = DocumentMailForm(as_attachment=as_attachment)

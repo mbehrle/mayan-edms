@@ -151,7 +151,7 @@ class StoredPermission(models.Model):
 
     def requester_has_this(self, actor):
         actor = AnonymousUserSingleton.objects.passthru_check(actor)
-        logger.debug('actor: %s' % actor)
+        logger.debug('actor: %s', actor)
         if isinstance(actor, User):
             if actor.is_superuser or actor.is_staff:
                 return True
@@ -195,8 +195,8 @@ class StoredPermission(models.Model):
 class PermissionHolder(models.Model):
     permission = models.ForeignKey(StoredPermission, verbose_name=_(u'Permission'))
     holder_type = models.ForeignKey(ContentType,
-        related_name='permission_holder',
-        limit_choices_to={'model__in': ('user', 'group', 'role')})
+                                    related_name='permission_holder',
+                                    limit_choices_to={'model__in': ('user', 'group', 'role')})
     holder_id = models.PositiveIntegerField()
     holder_object = generic.GenericForeignKey(ct_field='holder_type', fk_field='holder_id')
 
@@ -222,7 +222,7 @@ class Role(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('role_list',)
+        return ('permissions:role_list',)
 
     def add_member(self, member):
         member = AnonymousUserSingleton.objects.passthru_check(member)
@@ -246,7 +246,8 @@ class Role(models.Model):
 
 class RoleMember(models.Model):
     role = models.ForeignKey(Role, verbose_name=_(u'Role'))
-    member_type = models.ForeignKey(ContentType,
+    member_type = models.ForeignKey(
+        ContentType,
         related_name='role_member',
         limit_choices_to={
             'model__in': (

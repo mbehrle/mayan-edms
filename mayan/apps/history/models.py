@@ -7,7 +7,6 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db import models
-from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 
@@ -35,7 +34,7 @@ class HistoryType(models.Model):
 
 
 class History(models.Model):
-    datetime = models.DateTimeField(verbose_name=_(u'Date time'))
+    datetime = models.DateTimeField(verbose_name=_(u'Date time'), auto_now_add=True)
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
@@ -44,11 +43,6 @@ class History(models.Model):
 
     def __unicode__(self):
         return u'%s - %s - %s' % (self.datetime, self.content_object, self.history_type)
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            self.datetime = now()
-        super(History, self).save(*args, **kwargs)
 
     def get_label(self):
         return history_types_dict[self.history_type.namespace][self.history_type.name]['label']

@@ -18,18 +18,18 @@ from permissions.models import Permission
 
 from .exceptions import DocumentAlreadyCheckedOut, DocumentNotCheckedOut
 from .forms import DocumentCheckoutForm
+from .literals import STATE_LABELS
 from .models import DocumentCheckout
 from .permissions import (PERMISSION_DOCUMENT_CHECKIN,
                           PERMISSION_DOCUMENT_CHECKIN_OVERRIDE,
                           PERMISSION_DOCUMENT_CHECKOUT)
-from .widgets import checkout_widget
 
 
 def checkout_list(request):
     return document_list(
         request,
         object_list=DocumentCheckout.objects.checked_out_documents(),
-        title=_(u'checked out documents'),
+        title=_(u'Documents checked out'),
         extra_context={
             'extra_columns': [
                 {'name': _(u'Checkout user'), 'attribute': encapsulate(lambda document: get_object_name(document.checkout_info().user_object, display_object_type=False))},
@@ -47,7 +47,7 @@ def checkout_info(request, document_pk):
     except PermissionDenied:
         AccessEntry.objects.check_accesses([PERMISSION_DOCUMENT_CHECKOUT, PERMISSION_DOCUMENT_CHECKIN], request.user, document)
 
-    paragraphs = [checkout_widget(document)]
+    paragraphs = [_(u'Document status: %s') % STATE_LABELS[document.checkout_state()]]
 
     if document.is_checked_out():
         checkout_info = document.checkout_info()
@@ -72,20 +72,20 @@ def checkout_document(request, document_pk):
 
     if request.method == 'POST':
         form = DocumentCheckoutForm(data=request.POST, initial={'document': document})
-        try:
-            if form.is_valid():
-                try:
-                    document_checkout = form.save(commit=False)
-                    document_checkout.user_object = request.user
-                    document_checkout.save()
-                except Exception as exception:
-                    messages.error(request, _(u'Error trying to check out document; %s') % exception)
-                else:
-                    messages.success(request, _(u'Document "%s" checked out successfully.') % document)
-                    return HttpResponseRedirect(reverse('checkout_info', args=[document.pk]))
-        except DocumentAlreadyCheckedOut:
-            messages.error(request, _(u'Document already checked out.'))
-            return HttpResponseRedirect(reverse('checkout_info', args=[document.pk]))
+        if form.is_valid():
+            try:
+                document_checkout = form.save(commit=False)
+                document_checkout.user_object = request.user
+                document_checkout.document = document
+                document_checkout.save()
+            except DocumentAlreadyCheckedOut:
+                messages.error(request, _(u'Document already checked out.'))
+                return HttpResponseRedirect(reverse('checkouts:checkout_info', args=[document.pk]))
+            except Exception as exception:
+                messages.error(request, _(u'Error trying to check out document; %s') % exception)
+            else:
+                messages.success(request, _(u'Document "%s" checked out successfully.') % document)
+                return HttpResponseRedirect(reverse('checkouts:checkout_info', args=[document.pk]))
     else:
         form = DocumentCheckoutForm(initial={'document': document})
 
@@ -98,7 +98,14 @@ def checkout_document(request, document_pk):
 
 def checkin_document(request, document_pk):
     document = get_object_or_404(Document, pk=document_pk)
-    post_action_redirect = reverse('checkout_info', args=[document.pk])
+    post_action_redirect = reverse('checkouts:checkout_info', args=[document.pk])
+
+    previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse('main:home'))))
+    next = request.POST.get('next', request.GET.get('next', post_action_redirect if post_action_redirect else request.META.get('HTTP_REFERER', reverse('main:home'))))
+
+    if not document.is_checked_out():
+        messages.error(request, _(u'Document has not been checked out.'))
+        return HttpResponseRedirect(previous)
 
     # If the user trying to check in the document is the same as the check out
     # user just check for the normal permission otherwise check for the forceful
@@ -114,9 +121,6 @@ def checkin_document(request, document_pk):
         except PermissionDenied:
             AccessEntry.objects.check_access(PERMISSION_DOCUMENT_CHECKIN_OVERRIDE, request.user, document)
 
-    previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse('main:home'))))
-    next = request.POST.get('next', request.GET.get('next', post_action_redirect if post_action_redirect else request.META.get('HTTP_REFERER', reverse('main:home'))))
-
     if request.method == 'POST':
         try:
             document.check_in(user=request.user)
@@ -129,11 +133,9 @@ def checkin_document(request, document_pk):
             return HttpResponseRedirect(next)
 
     context = {
-        'object_name': _(u'Document'),
         'delete_view': False,
         'previous': previous,
         'next': next,
-        'form_icon': u'basket_remove.png',
         'object': document,
     }
 

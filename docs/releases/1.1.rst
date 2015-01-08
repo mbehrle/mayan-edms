@@ -9,12 +9,44 @@ Welcome to Mayan EDMS v1.1
 Overview
 ========
 
+
 What's new in Mayan EDMS v1.1
 =============================
 
-*  Removal of the MAIN_SIDE_BAR_SEARCH
-*  Views namespaces
-*  German language translation updates
+* Celery
+* Removal of the MAIN_SIDE_BAR_SEARCH
+* Removal of THEMES and themes support
+* Removal of VERBOSE_LOGIN
+* Removal of graphics backend supported file format list
+* Removal of the MAIN_DISABLE_ICONS
+* Removal of specialized Sentry support
+* Removal of English only names capitalization support
+* Removal of the MAIN_ENABLE_SCROLL_JS
+* Views namespaces
+* Language translation updates
+* Removal of the splash screen
+* Sending and receiving documents via email
+* Remove hardcoded root (/) redirections
+* Proper capitalization of messages
+* Removal of APSCheduler as a requirement
+* Removal of the signales, job_processing and scheduler apps
+* Removal of the scheduled jobs view
+* Removal of the web_theme app
+* Removal of the sources icon selection support
+* Removal of the in-app help panes
+* Improved method for custom settings
+* Update to Django 1.6.8
+* More API endpoints
+* Improvement of the existing API endpoints
+* Improve sources app model sub classes and inheritance handling
+* Drop support for Python 2.6
+* Add CORS support to the API
+* Bulk document type change
+* Watch folders
+* Removal of the duplicate document search support
+* Removal of filesystem document indexes mirroring
+* New home view
+* Explicit document types needed per index
 
 
 Upgrading from a previous version
@@ -32,11 +64,23 @@ Next upgrade/add the new requirements::
 
 Migrate existing database schema with::
 
+    $ mayan-edms.py migrate dynamic_search 0001 --fake
+    $ mayan-edms.py migrate history 0001 --fake
+    $ mayan-edms.py migrate linking 0001 --fake
+    $ mayan-edms.py migrate lock_manager 0001 --fake
+    $ mayan-edms.py migrate ocr 0001 --fake
+    $ mayan-edms.py migrate tags 0001 --fake
     $ mayan-edms.py migrate
 
 Add new static media::
 
     $ mayan-edms.py collectstatic --noinput
+
+Remove unused dependencies::
+
+    $ pip uninstall APScheduler
+    $ pip uninstall django-taggit
+
 
 The upgrade procedure is now complete.
 

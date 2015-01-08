@@ -1,6 +1,9 @@
 from django.conf.urls import patterns, url
 
 from .api_views import (APIDocumentMetadataListView, APIDocumentMetadataView,
+                        APIDocumentTypeMetadataTypeOptionalListView,
+                        APIDocumentTypeMetadataTypeRequiredListView,
+                        APIDocumentTypeMetadataTypeRequiredView,
                         APIMetadataTypeListView, APIMetadataTypeView)
 
 urlpatterns = patterns('metadata.views',
@@ -17,18 +20,16 @@ urlpatterns = patterns('metadata.views',
     url(r'^setup/type/(?P<metadatatype_id>\d+)/edit/$', 'setup_metadata_type_edit', (), 'setup_metadata_type_edit'),
     url(r'^setup/type/(?P<metadatatype_id>\d+)/delete/$', 'setup_metadata_type_delete', (), 'setup_metadata_type_delete'),
 
-    url(r'^setup/set/list/$', 'setup_metadata_set_list', (), 'setup_metadata_set_list'),
-    url(r'^setup/set/create/$', 'setup_metadata_set_create', (), 'setup_metadata_set_create'),
-    url(r'^setup/set/(?P<metadata_set_id>\d+)/edit/$', 'setup_metadata_set_edit', (), 'setup_metadata_set_edit'),
-    url(r'^setup/set/(?P<metadata_set_id>\d+)/members/$', 'setup_metadata_set_members', (), 'setup_metadata_set_members'),
-    url(r'^setup/set/(?P<metadata_set_id>\d+)/delete/$', 'setup_metadata_set_delete', (), 'setup_metadata_set_delete'),
-
-    url(r'^setup/document/type/(?P<document_type_id>\d+)/metadata/default/edit/$', 'setup_document_type_metadata', (), 'setup_document_type_metadata'),
+    url(r'^setup/document/type/(?P<document_type_id>\d+)/metadata/edit/$', 'setup_document_type_metadata', (), 'setup_document_type_metadata'),
+    url(r'^setup/document/type/(?P<document_type_id>\d+)/metadata/edit/required/$', 'setup_document_type_metadata_required', (), 'setup_document_type_metadata_required'),
 )
 
 api_urls = patterns('',
     url(r'^metadatatypes/$', APIMetadataTypeListView.as_view(), name='metadatatype-list'),
     url(r'^metadatatypes/(?P<pk>[0-9]+)/$', APIMetadataTypeView.as_view(), name='metadatatype-detail'),
-    url(r'^document/(?P<pk>[0-9]+)/metadata/$', APIDocumentMetadataListView.as_view(), name='documentmetadata-list'),
-    url(r'^document/(?P<document_pk>[0-9]+)/metadata/(?P<pk>[0-9]+)/$', APIDocumentMetadataView.as_view(), name='documentmetadata-detail'),
+    url(r'^document/metadata/(?P<pk>[0-9]+)/$', APIDocumentMetadataView.as_view(), name='documentmetadata-detail'),
+    url(r'^document/(?P<document_pk>[0-9]+)/metadata/$', APIDocumentMetadataListView.as_view(), name='documentmetadata-list'),
+    url(r'^document_type/(?P<document_type_pk>[0-9]+)/metadatatypes/optional/$', APIDocumentTypeMetadataTypeOptionalListView.as_view(), name='documenttypemetadatatype-list'),
+    url(r'^document_type/(?P<document_type_pk>[0-9]+)/metadatatypes/required/$', APIDocumentTypeMetadataTypeRequiredListView.as_view(), name='documenttypemetadatatype-list'),
+    url(r'^document_type/(?P<document_type_pk>[0-9]+)/metadatatypes/(?P<metadata_type_pk>[0-9]+)/$', APIDocumentTypeMetadataTypeRequiredView.as_view(), name='documenttypemetadatatype-detail'),
 )

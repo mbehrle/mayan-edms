@@ -3,20 +3,18 @@ from __future__ import absolute_import
 from datetime import datetime
 import logging
 
-from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.template.defaultfilters import force_escape
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from acls.models import AccessEntry
 from django_gpg.literals import SIGNATURE_STATE_NONE, SIGNATURE_STATES
-from documents.models import Document, RecentDocument
+from documents.models import Document
 from filetransfers.api import serve_file
 from permissions.models import Permission
 
@@ -38,7 +36,7 @@ def document_verify(request, document_pk):
     except PermissionDenied:
         AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VERIFY, request.user, document)
 
-    RecentDocument.objects.add_document_for_user(request.user, document)
+    document.add_as_recent_document_for_user(request.user)
 
     try:
         signature = DocumentVersionSignature.objects.verify_signature(document)
@@ -48,13 +46,7 @@ def document_verify(request, document_pk):
     else:
         signature_state = SIGNATURE_STATES.get(getattr(signature, 'status', None))
 
-    widget = (u'<img style="vertical-align: middle;" src="%simages/icons/%s" />' % (settings.STATIC_URL, signature_state['icon']))
-    paragraphs = [
-        _(u'Signature status: %(widget)s %(text)s') % {
-            'widget': mark_safe(widget),
-            'text': signature_state['text']
-        },
-    ]
+    paragraphs = [_(u'Signature status: %s') % signature_state['text']]
 
     try:
         if DocumentVersionSignature.objects.has_embedded_signature(document):
@@ -91,7 +83,7 @@ def document_signature_upload(request, document_pk):
     except PermissionDenied:
         AccessEntry.objects.check_access(PERMISSION_SIGNATURE_UPLOAD, request.user, document)
 
-    RecentDocument.objects.add_document_for_user(request.user, document)
+    document.add_as_recent_document_for_user(request.user)
 
     post_action_redirect = None
     previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse('main:home'))))
@@ -112,7 +104,6 @@ def document_signature_upload(request, document_pk):
 
     return render_to_response('main/generic_form.html', {
         'title': _(u'Upload detached signature for: %s') % document,
-        'form_icon': 'key_delete.png',
         'next': next,
         'form': form,
         'previous': previous,
@@ -152,7 +143,7 @@ def document_signature_delete(request, document_pk):
     except PermissionDenied:
         AccessEntry.objects.check_access(PERMISSION_SIGNATURE_DELETE, request.user, document)
 
-    RecentDocument.objects.add_document_for_user(request.user, document)
+    document.add_as_recent_document_for_user(request.user)
 
     post_action_redirect = None
     previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse('main:home'))))
@@ -169,7 +160,6 @@ def document_signature_delete(request, document_pk):
 
     return render_to_response('main/generic_confirm.html', {
         'title': _(u'Are you sure you wish to delete the detached signature from document: %s?') % document,
-        'form_icon': 'pencil_delete.png',
         'next': next,
         'previous': previous,
         'object': document,

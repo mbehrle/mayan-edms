@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import copy
 import logging
 import urlparse
 
@@ -12,34 +11,30 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.http import urlencode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext
 
 import sendfile
 
 from acls.models import AccessEntry
 from common.compressed_files import CompressedFile
-from common.literals import (PAGE_ORIENTATION_LANDSCAPE, PAGE_ORIENTATION_PORTRAIT,
-                             PAGE_SIZE_DIMENSIONS)
-from common.settings import DEFAULT_PAPER_SIZE
-from common.utils import (encapsulate, pretty_size, parse_range, return_diff,
-                          urlquote)
+from common.utils import encapsulate, pretty_size, parse_range, urlquote
 from common.views import SingleObjectListView
 from common.widgets import two_state_template
 from converter.literals import (DEFAULT_FILE_FORMAT_MIMETYPE, DEFAULT_PAGE_NUMBER,
                                 DEFAULT_ROTATION, DEFAULT_ZOOM_LEVEL)
-from converter.office_converter import OfficeConverter
 from filetransfers.api import serve_file
 from history.api import create_history
 from navigation.utils import resolve_to_name
 from permissions.models import Permission
 
 from .events import HISTORY_DOCUMENT_EDITED
-from .forms import (DocumentForm_edit, DocumentPropertiesForm,
-                    DocumentPreviewForm, DocumentPageForm,
-                    DocumentPageTransformationForm, DocumentContentForm,
-                    DocumentPageForm_edit, DocumentPageForm_text, PrintForm,
+from .forms import (DocumentContentForm, DocumentDownloadForm, DocumentForm,
+                    DocumentPageForm, DocumentPageForm_edit,
+                    DocumentPageForm_text, DocumentPageTransformationForm,
+                    DocumentPreviewForm, DocumentPropertiesForm,
                     DocumentTypeForm, DocumentTypeFilenameForm,
-                    DocumentTypeFilenameForm_create, DocumentDownloadForm)
+                    DocumentTypeFilenameForm_create, DocumentTypeSelectForm,
+                    PrintForm)
 from .models import (Document, DocumentType, DocumentPage,
                      DocumentPageTransformation, DocumentTypeFilename,
                      DocumentVersion, RecentDocument)
@@ -50,10 +45,10 @@ from .permissions import (PERMISSION_DOCUMENT_PROPERTIES_EDIT,
                           PERMISSION_DOCUMENT_VERSION_REVERT, PERMISSION_DOCUMENT_TYPE_EDIT,
                           PERMISSION_DOCUMENT_TYPE_DELETE, PERMISSION_DOCUMENT_TYPE_CREATE,
                           PERMISSION_DOCUMENT_TYPE_VIEW)
-from .runtime import storage_backend
 from .settings import (PREVIEW_SIZE, RECENT_COUNT, ROTATION_STEP,
                        ZOOM_PERCENT_STEP, ZOOM_MAX_LEVEL, ZOOM_MIN_LEVEL)
-from .tasks import task_get_document_image
+from .tasks import (task_clear_image_cache, task_get_document_image,
+                    task_update_page_count)
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +59,6 @@ class DocumentListView(SingleObjectListView):
 
     extra_context = {
         'title': _(u'All documents'),
-        'multi_select_as_buttons': True,
         'hide_links': True,
     }
 
@@ -86,7 +80,6 @@ def document_list(request, object_list=None, title=None, extra_context=None):
     context = {
         'object_list': final_object_list,
         'title': title if title else _(u'documents'),
-        'multi_select_as_buttons': True,
         'hide_links': True,
     }
     if extra_context:
@@ -96,7 +89,7 @@ def document_list(request, object_list=None, title=None, extra_context=None):
                               context_instance=RequestContext(request))
 
 
-def document_view(request, document_id, advanced=False):
+def document_properties(request, document_id):
     document = get_object_or_404(Document, pk=document_id)
 
     try:
@@ -104,70 +97,71 @@ def document_view(request, document_id, advanced=False):
     except PermissionDenied:
         AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VIEW, request.user, document)
 
-    RecentDocument.objects.add_document_for_user(request.user, document)
+    document.add_as_recent_document_for_user(request.user)
 
-    subtemplates_list = []
+    document_fields = [
+        {'label': _(u'Date added'), 'field': lambda x: x.date_added.date()},
+        {'label': _(u'Time added'), 'field': lambda x: unicode(x.date_added.time()).split('.')[0]},
+        {'label': _(u'UUID'), 'field': 'uuid'},
+    ]
+    if document.latest_version:
+        document_fields.extend([
+            {'label': _(u'File mimetype'), 'field': lambda x: x.file_mimetype or _(u'None')},
+            {'label': _(u'File encoding'), 'field': lambda x: x.file_mime_encoding or _(u'None')},
+            {'label': _(u'File size'), 'field': lambda x: pretty_size(x.size) if x.size else '-'},
+            {'label': _(u'Exists in storage'), 'field': 'exists'},
+            {'label': _(u'File path in storage'), 'field': 'file'},
+            {'label': _(u'Checksum'), 'field': 'checksum'},
+            {'label': _(u'Pages'), 'field': 'page_count'},
+        ])
 
-    if advanced:
-        document_fields = [
-            {'label': _(u'Date added'), 'field': lambda x: x.date_added.date()},
-            {'label': _(u'Time added'), 'field': lambda x: unicode(x.date_added.time()).split('.')[0]},
-            {'label': _(u'UUID'), 'field': 'uuid'},
-        ]
-        if document.latest_version:
-            document_fields.extend([
-                {'label': _(u'Filename'), 'field': 'filename'},
-                {'label': _(u'File mimetype'), 'field': lambda x: x.file_mimetype or _(u'None')},
-                {'label': _(u'File mime encoding'), 'field': lambda x: x.file_mime_encoding or _(u'None')},
-                {'label': _(u'File size'), 'field': lambda x: pretty_size(x.size) if x.size else '-'},
-                {'label': _(u'Exists in storage'), 'field': 'exists'},
-                {'label': _(u'File path in storage'), 'field': 'file'},
-                {'label': _(u'Checksum'), 'field': 'checksum'},
-                {'label': _(u'Pages'), 'field': 'page_count'},
-            ])
-
-        document_properties_form = DocumentPropertiesForm(instance=document, extra_fields=document_fields)
-
-        subtemplates_list.append(
-            {
-                'name': 'main/generic_form_subtemplate.html',
-                'context': {
-                    'form': document_properties_form,
-                    'object': document,
-                    'title': _(u'Document properties for: %s') % document,
-                }
-            },
-        )
-    else:
-        preview_form = DocumentPreviewForm(document=document)
-        subtemplates_list.append(
-            {
-                'name': 'main/generic_form_subtemplate.html',
-                'context': {
-                    'form': preview_form,
-                    'object': document,
-                }
-            },
-        )
-
-        content_form = DocumentContentForm(document=document)
-
-        subtemplates_list.append(
-            {
-                'name': 'main/generic_form_subtemplate.html',
-                'context': {
-                    'title': _(u'Document data'),
-                    'form': content_form,
-                    'object': document,
-                },
-            }
-        )
+    document_properties_form = DocumentPropertiesForm(instance=document, extra_fields=document_fields)
 
     return render_to_response('main/generic_detail.html', {
-        'object': document,
+        'form': document_properties_form,
         'document': document,
-        'subtemplates_list': subtemplates_list,
-        'disable_auto_focus': True,
+        'object': document,
+        'title': _(u'Document properties'),
+    }, context_instance=RequestContext(request))
+
+
+def document_preview(request, document_id):
+    document = get_object_or_404(Document, pk=document_id)
+
+    try:
+        Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_VIEW])
+    except PermissionDenied:
+        AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VIEW, request.user, document)
+
+    document.add_as_recent_document_for_user(request.user)
+
+    preview_form = DocumentPreviewForm(document=document)
+
+    return render_to_response('main/generic_detail.html', {
+        'document': document,
+        'form': preview_form,
+        'object': document,
+        'title': _(u'Document preview'),
+    }, context_instance=RequestContext(request))
+
+
+def document_content(request, document_id):
+    document = get_object_or_404(Document, pk=document_id)
+
+    try:
+        Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_VIEW])
+    except PermissionDenied:
+        AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VIEW, request.user, document)
+
+    document.add_as_recent_document_for_user(request.user)
+
+    content_form = DocumentContentForm(document=document)
+
+    return render_to_response('main/generic_detail.html', {
+        'document': document,
+        'form': content_form,
+        'object': document,
+        'title': _(u'Document content'),
     }, context_instance=RequestContext(request))
 
 
@@ -205,11 +199,9 @@ def document_delete(request, document_id=None, document_id_list=None):
         return HttpResponseRedirect(next)
 
     context = {
-        'object_name': _(u'document'),
         'delete_view': True,
         'previous': previous,
         'next': next,
-        'form_icon': u'page_delete.png',
     }
     if len(documents) == 1:
         context['object'] = documents[0]
@@ -235,35 +227,88 @@ def document_edit(request, document_id):
         AccessEntry.objects.check_access(PERMISSION_DOCUMENT_PROPERTIES_EDIT, request.user, document)
 
     if request.method == 'POST':
-        old_document = copy.copy(document)
-        form = DocumentForm_edit(request.POST, instance=document)
+        form = DocumentForm(request.POST, instance=document)
         if form.is_valid():
-            document.filename = form.cleaned_data['new_filename']
+            document.label = form.cleaned_data['label']
             document.description = form.cleaned_data['description']
+            document.language = form.cleaned_data['language']
 
             if 'document_type_available_filenames' in form.cleaned_data:
                 if form.cleaned_data['document_type_available_filenames']:
-                    document.filename = form.cleaned_data['document_type_available_filenames'].filename
+                    document.label = form.cleaned_data['document_type_available_filenames'].filename
 
             document.save()
-            create_history(HISTORY_DOCUMENT_EDITED, document, {'user': request.user, 'diff': return_diff(old_document, document, ['filename', 'description'])})
-            RecentDocument.objects.add_document_for_user(request.user, document)
+            create_history(HISTORY_DOCUMENT_EDITED, document, {'user': request.user})
+            document.add_as_recent_document_for_user(request.user)
 
             messages.success(request, _(u'Document "%s" edited successfully.') % document)
 
             return HttpResponseRedirect(document.get_absolute_url())
     else:
-        if document.latest_version:
-            form = DocumentForm_edit(instance=document, initial={
-                'new_filename': document.filename, 'description': document.description})
-        else:
-            form = DocumentForm_edit(instance=document, initial={
-                'description': document.description})
+        form = DocumentForm(instance=document)
 
     return render_to_response('main/generic_form.html', {
         'form': form,
         'object': document,
+        'title': _('Edit properties of: %s') % document,
     }, context_instance=RequestContext(request))
+
+
+def document_document_type_edit(request, document_id=None, document_id_list=None):
+    post_action_redirect = None
+
+    if document_id:
+        documents = [get_object_or_404(Document, pk=document_id)]
+        post_action_redirect = reverse('documents:document_list_recent')
+    elif document_id_list:
+        documents = [get_object_or_404(Document, pk=document_id) for document_id in document_id_list.split(',')]
+    else:
+        messages.error(request, _(u'Must provide at least one document.'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL)))
+
+    try:
+        Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_PROPERTIES_EDIT])
+    except PermissionDenied:
+        documents = AccessEntry.objects.filter_objects_by_access(PERMISSION_DOCUMENT_PROPERTIES_EDIT, request.user, documents, exception_on_empty=True)
+
+    previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL))))
+    next = request.POST.get('next', request.GET.get('next', post_action_redirect if post_action_redirect else request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL))))
+
+    if request.method == 'POST':
+        form = DocumentTypeSelectForm(request.POST)
+        if form.is_valid():
+
+            for document in documents:
+                document.set_document_type(form.cleaned_data['document_type'])
+                create_history(HISTORY_DOCUMENT_EDITED, document, {'user': request.user})
+                document.add_as_recent_document_for_user(request.user)
+
+            messages.success(request, _(u'Document type changed successfully.'))
+            return HttpResponseRedirect(next)
+    else:
+        form = DocumentTypeSelectForm(initial={'document_type': documents[0].document_type})
+
+    context = {
+        'form': form,
+        'submit_label': _('Submit'),
+        'previous': previous,
+        'next': next,
+    }
+
+    if len(documents) == 1:
+        context['object'] = documents[0]
+        context['title'] = _(u'Are you sure you wish to change the type of the document: %s?') % ', '.join([unicode(d) for d in documents])
+    elif len(documents) > 1:
+        context['title'] = _(u'Are you sure you wish to change the type of the documents: %s?') % ', '.join([unicode(d) for d in documents])
+
+    return render_to_response('main/generic_form.html', context,
+                              context_instance=RequestContext(request))
+
+
+def document_multiple_document_type_edit(request):
+    return document_document_type_edit(
+        request, document_id_list=request.GET.get('id_list', [])
+    )
 
 
 # TODO: Get rid of this view and convert widget to use API and base64 only images
@@ -335,7 +380,7 @@ def document_download(request, document_id=None, document_id_list=None, document
                     compressed_file = CompressedFile()
                     for document_version in document_versions:
                         descriptor = document_version.open()
-                        compressed_file.add_file(descriptor, arcname=document_version.filename)
+                        compressed_file.add_file(descriptor, arcname=document_version.document.label)
                         descriptor.close()
 
                     compressed_file.close()
@@ -361,7 +406,7 @@ def document_download(request, document_id=None, document_id_list=None, document
                     return serve_file(
                         request,
                         document_versions[0].file,
-                        save_as=u'"%s"' % document_versions[0].filename,
+                        save_as=u'"%s"' % document_versions[0].document.label,
                         content_type=document_versions[0].mimetype if document_versions[0].mimetype else 'application/octet-stream'
                     )
                 except Exception as exception:
@@ -381,7 +426,6 @@ def document_download(request, document_id=None, document_id_list=None, document
         'submit_label': _(u'Download'),
         'previous': previous,
         'cancel_label': _(u'Return'),
-        'disable_auto_focus': True,
     }
 
     if len(document_versions) == 1:
@@ -400,95 +444,63 @@ def document_multiple_download(request):
     )
 
 
-def document_find_duplicates(request, document_id):
-    document = get_object_or_404(Document, pk=document_id)
+def document_update_page_count(request, document_id=None, document_id_list=None):
+    if document_id:
+        documents = [get_object_or_404(Document.objects, pk=document_id)]
+        post_redirect = documents[0].get_absolute_url()
+    elif document_id_list:
+        documents = [get_object_or_404(Document, pk=document_id) for document_id in document_id_list.split(',')]
+    else:
+        messages.error(request, _(u'Must provide at least one document.'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL)))
 
     try:
-        Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_VIEW])
+        Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_TOOLS])
     except PermissionDenied:
-        AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VIEW, request.user, document)
+        documents = AccessEntry.objects.filter_objects_by_access(PERMISSION_DOCUMENT_TOOLS, request.user, documents, exception_on_empty=True)
 
-    extra_context = {
-        'title': _(u'Duplicates of: %s') % document,
-        'object': document,
-    }
-    return _find_duplicate_list(request, [document], include_source=True, confirmation=False, extra_context=extra_context)
-
-
-def _find_duplicate_list(request, source_document_list=Document.objects.all(), include_source=False, confirmation=True, extra_context=None):
-    previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', None)))
-
-    if confirmation and request.method != 'POST':
-        return render_to_response('main/generic_confirm.html', {
-            'previous': previous,
-            'title': _(u'Are you sure you wish to find all duplicates?'),
-            'message': _(u'On large databases this operation may take some time to execute.'),
-            'form_icon': u'page_refresh.png',
-        }, context_instance=RequestContext(request))
-    else:
-        duplicated = []
-        for document in source_document_list:
-            if document.pk not in duplicated:
-                results = DocumentVersion.objects.filter(checksum=document.latest_version.checksum).exclude(id__in=duplicated).exclude(pk=document.pk).values_list('document__pk', flat=True)
-                duplicated.extend(results)
-
-                if include_source and results:
-                    duplicated.append(document.pk)
-        context = {
-            'hide_links': True,
-            'multi_select_as_buttons': True,
-        }
-
-        if extra_context:
-            context.update(extra_context)
-
-        return document_list(
-            request,
-            object_list=Document.objects.filter(pk__in=duplicated),
-            title=_(u'Duplicated documents'),
-            extra_context=context
-        )
-
-
-def document_find_all_duplicates(request):
-    return _find_duplicate_list(request, include_source=True)
-
-
-def document_update_page_count(request):
-    Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_TOOLS])
-
-    office_converter = OfficeConverter()
-    qs = DocumentVersion.objects.exclude(filename__iendswith='dxf').filter(mimetype__in=office_converter.mimetypes())
     previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL))))
 
     if request.method == 'POST':
-        updated = 0
-        processed = 0
-        for document_version in qs:
-            old_page_count = document_version.pages.count()
-            document_version.update_page_count()
-            processed += 1
-            if old_page_count != document_version.pages.count():
-                updated += 1
+        for document in documents:
+            task_update_page_count.apply_async(kwargs={'version_id': document.latest_version.pk}, queue='tools')
 
-        messages.success(request, _(u'Page count update complete.  Documents processed: %(total)d, documents with changed page count: %(change)d') % {
-            'total': processed,
-            'change': updated
-        })
+        messages.success(
+            request,
+            ungettext(
+                _(u'Document queued for page count reset.'),
+                _(u'Documents queued for page count reset.'),
+                len(documents)
+            )
+        )
         return HttpResponseRedirect(previous)
 
-    return render_to_response('main/generic_confirm.html', {
+    title = ungettext(
+        _(u'Are you sure you wish to reset the page count of this document?'),
+        _(u'Are you sure you wish to reset the page count of these documents?'),
+        len(documents)
+    )
+
+    context = {
         'previous': previous,
-        'title': _(u'Are you sure you wish to update the page count for the office documents (%d)?') % qs.count(),
-        'message': _(u'On large databases this operation may take some time to execute.'),
-        'form_icon': u'page_white_csharp.png',
-    }, context_instance=RequestContext(request))
+        'title': title,
+    }
+
+    if len(documents) == 1:
+        context['object'] = documents[0]
+
+    return render_to_response('main/generic_confirm.html', context,
+                              context_instance=RequestContext(request))
+
+
+def document_multiple_update_page_count(request):
+    return document_update_page_count(request, document_id_list=request.GET.get('id_list', []))
 
 
 def document_clear_transformations(request, document_id=None, document_id_list=None):
     if document_id:
         documents = [get_object_or_404(Document.objects, pk=document_id)]
-        post_redirect = reverse('documents:document_view_simple', args=[documents[0].pk])
+        post_redirect = documents[0].get_absolute_url()
     elif document_id_list:
         documents = [get_object_or_404(Document, pk=document_id) for document_id in document_id_list.split(',')]
         post_redirect = None
@@ -519,11 +531,9 @@ def document_clear_transformations(request, document_id=None, document_id_list=N
         return HttpResponseRedirect(next)
 
     context = {
-        'object_name': _(u'Document transformation'),
         'delete_view': True,
         'previous': previous,
         'next': next,
-        'form_icon': u'page_paintbrush.png',
     }
 
     if len(documents) == 1:
@@ -538,28 +548,6 @@ def document_clear_transformations(request, document_id=None, document_id_list=N
 
 def document_multiple_clear_transformations(request):
     return document_clear_transformations(request, document_id_list=request.GET.get('id_list', []))
-
-
-def document_missing_list(request):
-    Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_VIEW])
-
-    previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', None)))
-
-    if request.method != 'POST':
-        return render_to_response('main/generic_confirm.html', {
-            'previous': previous,
-            'message': _(u'On large databases this operation may take some time to execute.'),
-        }, context_instance=RequestContext(request))
-    else:
-        missing_id_list = []
-        for document in Document.objects.only('id',):
-            if not storage_backend.exists(document.file):
-                missing_id_list.append(document.pk)
-
-        return render_to_response('main/generic_list.html', {
-            'object_list': Document.objects.in_bulk(missing_id_list).values(),
-            'title': _(u'Missing documents'),
-        }, context_instance=RequestContext(request))
 
 
 def document_page_view(request, document_page_id):
@@ -796,7 +784,7 @@ def document_print(request, document_id):
     except PermissionDenied:
         AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VIEW, request.user, document)
 
-    RecentDocument.objects.add_document_for_user(request.user, document)
+    document.add_as_recent_document_for_user(request.user)
 
     post_redirect = None
     next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', post_redirect or document.get_absolute_url())))
@@ -839,15 +827,7 @@ def document_hard_copy(request, document_id):
     except PermissionDenied:
         AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VIEW, request.user, document)
 
-    RecentDocument.objects.add_document_for_user(request.user, document)
-
-    # Extract dimension values ignoring any unit
-    page_width = request.GET.get('page_width', dict(PAGE_SIZE_DIMENSIONS)[DEFAULT_PAPER_SIZE][0])
-    page_height = request.GET.get('page_height', dict(PAGE_SIZE_DIMENSIONS)[DEFAULT_PAPER_SIZE][1])
-
-    # TODO: Replace with regex to extact numeric portion
-    width = float(page_width.split('i')[0].split('c')[0].split('m')[0])
-    height = float(page_height.split('i')[0].split('c')[0].split('m')[0])
+    document.add_as_recent_document_for_user(request.user)
 
     page_range = request.GET.get('page_range', u'')
     if page_range:
@@ -859,13 +839,7 @@ def document_hard_copy(request, document_id):
 
     return render_to_response('document_print.html', {
         'object': document,
-        'page_aspect': width / height,
-        'page_orientation': PAGE_ORIENTATION_LANDSCAPE if width / height > 1 else PAGE_ORIENTATION_PORTRAIT,
-        'page_orientation_landscape': True if width / height > 1 else False,
-        'page_orientation_portrait': False if width / height > 1 else True,
         'page_range': page_range,
-        'page_width': page_width,
-        'page_height': page_height,
         'pages': pages,
     }, context_instance=RequestContext(request))
 
@@ -878,6 +852,10 @@ def document_type_list(request):
         'title': _(u'Document types'),
         'hide_link': True,
         'list_object_variable_name': 'document_type',
+        'extra_columns': [
+            {'name': _('OCR'), 'attribute': 'ocr'},
+            {'name': _('Documents'), 'attribute': encapsulate(lambda x: x.documents.count())}
+        ]
     }
 
     return render_to_response('main/generic_list.html', context,
@@ -905,7 +883,6 @@ def document_type_edit(request, document_type_id):
     return render_to_response('main/generic_form.html', {
         'title': _(u'Edit document type: %s') % document_type,
         'form': form,
-        'object_name': _(u'Document type'),
         'navigation_object_name': 'document_type',
         'document_type': document_type,
         'next': next
@@ -923,7 +900,6 @@ def document_type_delete(request, document_type_id):
 
     if request.method == 'POST':
         try:
-            Document.objects.filter(document_type=document_type).update(document_type=None)
             document_type.delete()
             messages.success(request, _(u'Document type: %s deleted successfully.') % document_type)
         except Exception as exception:
@@ -937,11 +913,9 @@ def document_type_delete(request, document_type_id):
         'delete_view': True,
         'navigation_object_name': 'document_type',
         'next': next,
-        'object_name': _(u'Document type'),
         'previous': previous,
         'title': _(u'Are you sure you wish to delete the document type: %s?') % document_type,
-        'message': _(u'The document type of all documents using this document type will be set to none.'),
-        'form_icon': u'layout_delete.png',
+        'message': _(u'All documents of this type will be deleted too.'),
     }
 
     return render_to_response('main/generic_confirm.html', context,
@@ -975,9 +949,8 @@ def document_type_filename_list(request, document_type_id):
     document_type = get_object_or_404(DocumentType, pk=document_type_id)
 
     context = {
-        'object_list': document_type.documenttypefilename_set.all(),
-        'title': _(u'filenames for document type: %s') % document_type,
-        'object_name': _(u'Document type'),
+        'object_list': document_type.filenames.all(),
+        'title': _(u'Filenames for document type: %s') % document_type,
         'navigation_object_name': 'document_type',
         'document_type': document_type,
         'list_object_variable_name': 'filename',
@@ -1049,7 +1022,6 @@ def document_type_filename_delete(request, document_type_filename_id):
         return HttpResponseRedirect(next)
 
     context = {
-        'object_name': _(u'Document type filename'),
         'delete_view': True,
         'previous': previous,
         'next': next,
@@ -1062,7 +1034,6 @@ def document_type_filename_delete(request, document_type_filename_id):
         'title': _(u'Are you sure you wish to delete the filename: %(filename)s, from document type "%(document_type)s"?') % {
             'document_type': document_type_filename.document_type, 'filename': document_type_filename
         },
-        'form_icon': u'database_delete.png',
     }
 
     return render_to_response('main/generic_confirm.html', context,
@@ -1108,18 +1079,14 @@ def document_clear_image_cache(request):
     previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL))))
 
     if request.method == 'POST':
-        try:
-            Document.clear_image_cache()
-            messages.success(request, _(u'Document image cache cleared successfully'))
-        except Exception as exception:
-            messages.error(request, _(u'Error clearing document image cache; %s') % exception)
+        task_clear_image_cache.apply_async(queue='tools')
+        messages.success(request, _(u'Document image cache clearing queued successfully.'))
 
         return HttpResponseRedirect(previous)
 
     return render_to_response('main/generic_confirm.html', {
         'previous': previous,
         'title': _(u'Are you sure you wish to clear the document image cache?'),
-        'form_icon': u'camera_delete.png',
     }, context_instance=RequestContext(request))
 
 
@@ -1131,7 +1098,7 @@ def document_version_list(request, document_pk):
     except PermissionDenied:
         AccessEntry.objects.check_access(PERMISSION_DOCUMENT_VIEW, request.user, document)
 
-    RecentDocument.objects.add_document_for_user(request.user, document)
+    document.add_as_recent_document_for_user(request.user)
 
     context = {
         'object_list': document.versions.order_by('-timestamp'),
@@ -1140,10 +1107,6 @@ def document_version_list(request, document_pk):
         'object': document,
         'access_object': document,
         'extra_columns': [
-            {
-                'name': _(u'Version'),
-                'attribute': 'get_formated_version',
-            },
             {
                 'name': _(u'Time and date'),
                 'attribute': 'timestamp',
@@ -1155,10 +1118,6 @@ def document_version_list(request, document_pk):
             {
                 'name': _(u'Encoding'),
                 'attribute': 'encoding',
-            },
-            {
-                'name': _(u'Filename'),
-                'attribute': 'filename',
             },
             {
                 'name': _(u'Comment'),
@@ -1195,7 +1154,6 @@ def document_version_revert(request, document_version_pk):
         'object': document_version.document,
         'title': _(u'Are you sure you wish to revert to this version?'),
         'message': _(u'All later version after this one will be deleted too.'),
-        'form_icon': u'page_refresh.png',
     }, context_instance=RequestContext(request))
 
 
@@ -1320,5 +1278,4 @@ def document_page_transformation_delete(request, document_page_transformation_id
             'document_page': document_page_transformation.document_page},
         'web_theme_hide_menus': True,
         'previous': previous,
-        'form_icon': u'pencil_delete.png',
     }, context_instance=RequestContext(request))

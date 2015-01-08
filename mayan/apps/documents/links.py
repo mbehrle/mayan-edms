@@ -38,22 +38,23 @@ def is_current_version(context):
 
 document_list = {'text': _(u'All documents'), 'view': 'documents:document_list', 'famfam': 'page'}
 document_list_recent = {'text': _(u'Recent documents'), 'view': 'documents:document_list_recent', 'famfam': 'page'}
-document_view_simple = {'text': _(u'Details'), 'view': 'documents:document_view_simple', 'args': 'object.id', 'famfam': 'page', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
-document_view_advanced = {'text': _(u'Properties'), 'view': 'documents:document_view_advanced', 'args': 'object.id', 'famfam': 'page_gear', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
+document_preview = {'text': _(u'Preview'), 'view': 'documents:document_preview', 'args': 'object.id', 'famfam': 'page', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
+document_content = {'text': _(u'Content'), 'view': 'documents:document_content', 'args': 'object.id', 'famfam': 'page_white_text', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
+document_properties = {'text': _(u'Properties'), 'view': 'documents:document_properties', 'args': 'object.id', 'famfam': 'page_gear', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
 document_delete = {'text': _(u'Delete'), 'view': 'documents:document_delete', 'args': 'object.id', 'famfam': 'page_delete', 'permissions': [PERMISSION_DOCUMENT_DELETE]}
 document_multiple_delete = {'text': _(u'Delete'), 'view': 'documents:document_multiple_delete', 'famfam': 'page_delete', 'permissions': [PERMISSION_DOCUMENT_DELETE]}
-document_edit = {'text': _(u'Edit'), 'view': 'documents:document_edit', 'args': 'object.id', 'famfam': 'page_edit', 'permissions': [PERMISSION_DOCUMENT_PROPERTIES_EDIT]}
+document_edit = {'text': _(u'Edit properties'), 'view': 'documents:document_edit', 'args': 'object.id', 'famfam': 'page_edit', 'permissions': [PERMISSION_DOCUMENT_PROPERTIES_EDIT]}
+document_document_type_edit = {'text': _(u'Change type'), 'view': 'documents:document_document_type_edit', 'args': 'object.id', 'famfam': 'layout', 'permissions': [PERMISSION_DOCUMENT_PROPERTIES_EDIT]}
+document_multiple_document_type_edit = {'text': _(u'Change type'), 'view': 'documents:document_multiple_document_type_edit', 'famfam': 'layout', 'permissions': [PERMISSION_DOCUMENT_PROPERTIES_EDIT]}
 document_download = {'text': _(u'Download'), 'view': 'documents:document_download', 'args': 'object.id', 'famfam': 'page_save', 'permissions': [PERMISSION_DOCUMENT_DOWNLOAD]}
 document_multiple_download = {'text': _(u'Download'), 'view': 'documents:document_multiple_download', 'famfam': 'page_save', 'permissions': [PERMISSION_DOCUMENT_DOWNLOAD]}
 document_version_download = {'text': _(u'Download'), 'view': 'documents:document_version_download', 'args': 'object.pk', 'famfam': 'page_save', 'permissions': [PERMISSION_DOCUMENT_DOWNLOAD]}
-document_find_duplicates = {'text': _(u'Find duplicates'), 'view': 'documents:document_find_duplicates', 'args': 'object.id', 'famfam': 'page_white_copy', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
-document_find_all_duplicates = {'text': _(u'Find all duplicates'), 'view': 'documents:document_find_all_duplicates', 'famfam': 'page_white_copy', 'permissions': [PERMISSION_DOCUMENT_VIEW], 'description': _(u'Search all the documents\' checksums and return a list of the exact matches.')}
-document_update_page_count = {'text': _(u'Update office documents\' page count'), 'view': 'documents:document_update_page_count', 'famfam': 'page_white_csharp', 'permissions': [PERMISSION_DOCUMENT_TOOLS], 'description': _(u'Update the page count of the office type documents.  This is useful when enabling office document support after there were already office type documents in the database.')}
+document_update_page_count = {'text': _(u'Reset page count'), 'view': 'documents:document_update_page_count', 'args': 'object.pk', 'famfam': 'page_white_csharp', 'permissions': [PERMISSION_DOCUMENT_TOOLS]}
+document_multiple_update_page_count = {'text': _(u'Reset page count'), 'view': 'documents:document_multiple_update_page_count', 'famfam': 'page_white_csharp', 'permissions': [PERMISSION_DOCUMENT_TOOLS]}
 document_clear_transformations = {'text': _(u'Clear transformations'), 'view': 'documents:document_clear_transformations', 'args': 'object.id', 'famfam': 'page_paintbrush', 'permissions': [PERMISSION_DOCUMENT_TRANSFORM]}
 document_multiple_clear_transformations = {'text': _(u'Clear transformations'), 'view': 'documents:document_multiple_clear_transformations', 'famfam': 'page_paintbrush', 'permissions': [PERMISSION_DOCUMENT_TRANSFORM]}
 document_print = {'text': _(u'Print'), 'view': 'documents:document_print', 'args': 'object.id', 'famfam': 'printer', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
 document_history_view = {'text': _(u'History'), 'view': 'history:history_for_object', 'args': ['"documents"', '"document"', 'object.id'], 'famfam': 'book_go', 'permissions': [PERMISSION_HISTORY_VIEW]}
-document_missing_list = {'text': _(u'Find missing document files'), 'view': 'documents:document_missing_list', 'famfam': 'folder_page', 'permissions': [PERMISSION_DOCUMENT_VIEW]}
 
 # Tools
 document_clear_image_cache = {'text': _(u'Clear the document image cache'), 'view': 'documents:document_clear_image_cache', 'famfam': 'camera_delete', 'permissions': [PERMISSION_DOCUMENT_TOOLS], 'description': _(u'Clear the graphics representations used to speed up the documents\' display and interactive transformations results.')}
@@ -82,8 +83,8 @@ document_version_list = {'text': _(u'Versions'), 'view': 'documents:document_ver
 document_version_revert = {'text': _(u'Revert'), 'view': 'documents:document_version_revert', 'args': 'object.pk', 'famfam': 'page_refresh', 'permissions': [PERMISSION_DOCUMENT_VERSION_REVERT], 'conditional_disable': is_current_version}
 
 # Document type related links
-document_type_list = {'text': _(u'Document type list'), 'view': 'documents:document_type_list', 'famfam': 'layout', 'permissions': [PERMISSION_DOCUMENT_TYPE_VIEW]}
-document_type_setup = {'text': _(u'Document types'), 'view': 'documents:document_type_list', 'famfam': 'layout', 'icon': 'layout.png', 'permissions': [PERMISSION_DOCUMENT_TYPE_VIEW], 'children_view_regex': [r'^document_type_']}
+document_type_list = {'text': _(u'Document types'), 'view': 'documents:document_type_list', 'famfam': 'layout', 'permissions': [PERMISSION_DOCUMENT_TYPE_VIEW]}
+document_type_setup = {'text': _(u'Document types'), 'view': 'documents:document_type_list', 'famfam': 'layout', 'icon': 'layout.png', 'permissions': [PERMISSION_DOCUMENT_TYPE_VIEW]}
 document_type_edit = {'text': _(u'Edit'), 'view': 'documents:document_type_edit', 'args': 'document_type.id', 'famfam': 'layout_edit', 'permissions': [PERMISSION_DOCUMENT_TYPE_EDIT]}
 document_type_delete = {'text': _(u'Delete'), 'view': 'documents:document_type_delete', 'args': 'document_type.id', 'famfam': 'layout_delete', 'permissions': [PERMISSION_DOCUMENT_TYPE_DELETE]}
 document_type_create = {'text': _(u'Create document type'), 'view': 'documents:document_type_create', 'famfam': 'layout_add', 'permissions': [PERMISSION_DOCUMENT_TYPE_CREATE]}

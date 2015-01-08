@@ -39,7 +39,7 @@ def acl_list_for(request, obj, extra_context=None):
     except PermissionDenied:
         AccessEntry.objects.check_access(ACLS_VIEW_ACL, request.user, obj)
 
-    logger.debug('obj: %s' % obj)
+    logger.debug('obj: %s', obj)
 
     context = {
         'object_list': AccessEntry.objects.get_holders_for(obj),
@@ -115,7 +115,6 @@ def acl_detail_for(request, actor, obj):
     context = {
         'object': obj.source_object,
         'subtemplates_list': subtemplates_list,
-        'multi_select_as_buttons': True,
         'multi_select_item_properties': {
             'permission_pk': lambda x: x.pk,
             'holder_gid': lambda x: actor.gid,
@@ -209,15 +208,14 @@ def acl_grant(request):
         'delete_view': True,
         'previous': previous,
         'next': next,
-        'form_icon': u'key_add.png',
     }
 
     context['title'] = title_prefix % {
         'title_suffix': u''.join(title_suffix),
     }
 
-    logger.debug('navigation_object_count: %d' % navigation_object_count)
-    logger.debug('navigation_object: %s' % navigation_object)
+    logger.debug('navigation_object_count: %d', navigation_object_count)
+    logger.debug('navigation_object: %s', navigation_object)
     if navigation_object_count == 1:
         context['object'] = navigation_object.source_object
 
@@ -302,15 +300,14 @@ def acl_revoke(request):
         'delete_view': True,
         'previous': previous,
         'next': next,
-        'form_icon': u'key_delete.png',
     }
 
     context['title'] = title_prefix % {
         'title_suffix': u''.join(title_suffix),
     }
 
-    logger.debug('navigation_object_count: %d' % navigation_object_count)
-    logger.debug('navigation_object: %s' % navigation_object)
+    logger.debug('navigation_object_count: %d', navigation_object_count)
+    logger.debug('navigation_object: %s', navigation_object)
     if navigation_object_count == 1:
         context['object'] = navigation_object.source_object
 
@@ -391,12 +388,12 @@ def acl_setup_valid_classes(request):
 
 
 def acl_class_acl_list(request, access_object_class_gid):
-    logger.debug('access_object_class_gid: %s' % access_object_class_gid)
+    logger.debug('access_object_class_gid: %s', access_object_class_gid)
 
     Permission.objects.check_permissions(request.user, [ACLS_CLASS_VIEW_ACL])
 
     access_object_class = AccessObjectClass.get(gid=access_object_class_gid)
-    logger.debug('access_object_class: %s' % access_object_class)
+    logger.debug('access_object_class: %s', access_object_class)
 
     context = {
         'object_list': DefaultAccessEntry.objects.get_holders_for(access_object_class.source_object),
@@ -449,7 +446,6 @@ def acl_class_acl_detail(request, access_object_class_gid, holder_object_gid):
     return render_to_response('main/generic_detail.html', {
         'object': access_object_class,
         'subtemplates_list': subtemplates_list,
-        'multi_select_as_buttons': True,
         'multi_select_item_properties': {
             'permission_pk': lambda x: x.pk,
             'holder_gid': lambda x: actor.gid,
@@ -549,15 +545,14 @@ def acl_class_multiple_grant(request):
         'delete_view': True,
         'previous': previous,
         'next': next,
-        'form_icon': u'key_add.png',
     }
 
     context['title'] = title_prefix % {
         'title_suffix': u''.join(title_suffix),
     }
 
-    logger.debug('navigation_object_count: %d' % navigation_object_count)
-    logger.debug('navigation_object: %s' % navigation_object)
+    logger.debug('navigation_object_count: %d', navigation_object_count)
+    logger.debug('navigation_object: %s', navigation_object)
     if navigation_object_count == 1:
         context['object'] = navigation_object
 
@@ -628,15 +623,14 @@ def acl_class_multiple_revoke(request):
         'delete_view': True,
         'previous': previous,
         'next': next,
-        'form_icon': u'key_delete.png',
     }
 
     context['title'] = title_prefix % {
         'title_suffix': u''.join(title_suffix),
     }
 
-    logger.debug('navigation_object_count: %d' % navigation_object_count)
-    logger.debug('navigation_object: %s' % navigation_object)
+    logger.debug('navigation_object_count: %d', navigation_object_count)
+    logger.debug('navigation_object: %s', navigation_object)
     if navigation_object_count == 1:
         context['object'] = navigation_object
 

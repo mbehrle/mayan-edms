@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Translators:
 # Mohammed ALDOUB <voulnet@gmail.com>, 2013
@@ -9,15 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-08 17:10-0400\n"
+"POT-Creation-Date: 2014-10-30 11:34-0400\n"
 "PO-Revision-Date: 2014-10-08 21:13+0000\n"
 "Last-Translator: Roberto Rosario\n"
-"Language-Team: Arabic (http://www.transifex.com/projects/p/mayan-edms/language/ar/)\n"
+"Language-Team: Arabic (http://www.transifex.com/projects/p/mayan-edms/"
+"language/ar/)\n"
+"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ar\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #: forms.py:49
 msgid "Pages"
@@ -35,15 +37,12 @@ msgstr "اضغط على الصورة لمشاهدة الحجم الكامل لل
 msgid "Smart links actions"
 msgstr ""
 
-#: links.py:13 links.py:15 models.py:22 permissions.py:7 views.py:131
+#: links.py:13 links.py:15 links.py:16 models.py:22 permissions.py:7
+#: views.py:132
 msgid "Smart links"
 msgstr "الروابط الذكية"
 
-#: links.py:16
-msgid "Smart links list"
-msgstr ""
-
-#: links.py:17 views.py:158
+#: links.py:17 views.py:159
 msgid "Create new smart link"
 msgstr "إنشاء ارتباط ذكي جديد"
 
@@ -139,7 +138,7 @@ msgstr "is in regular expression (case insensitive)"
 msgid "Title"
 msgstr ""
 
-#: models.py:12 views.py:134
+#: models.py:12 views.py:135
 msgid "Dynamic title"
 msgstr ""
 
@@ -148,9 +147,12 @@ msgid ""
 "This expression will be evaluated against the current selected document.  "
 "The document metadata is available as variables `metadata` and document "
 "properties under the variable `document`."
-msgstr "This expression will be evaluated against the current selected document.  The document metadata is available as variables `metadata` and document properties under the variable `document`."
+msgstr ""
+"This expression will be evaluated against the current selected document.  "
+"The document metadata is available as variables `metadata` and document "
+"properties under the variable `document`."
 
-#: models.py:13 models.py:32 views.py:135 views.py:230
+#: models.py:13 models.py:32 views.py:136 views.py:230
 msgid "Enabled"
 msgstr ""
 
@@ -170,7 +172,9 @@ msgstr ""
 msgid ""
 "This represents the metadata of all other documents.  Available objects: "
 "`document.<attribute>` and `metadata.<metadata_type_name>`."
-msgstr "This represents the metadata of all other documents.  Available objects: `document.<attribute>` and `metadata.<metadata_type_name>`."
+msgstr ""
+"This represents the metadata of all other documents.  Available objects: "
+"`document.<attribute>` and `metadata.<metadata_type_name>`."
 
 #: models.py:30
 msgid "Expression"
@@ -236,35 +240,41 @@ msgid "Smart links (%s)"
 msgstr ""
 
 #: views.py:111
-msgid "There no defined smart links for the current document."
+#, fuzzy
+msgid "Smart links (0)"
+msgstr "الروابط الذكية"
+
+#: views.py:112
+#, fuzzy
+msgid "There are no defined smart links for the current document."
 msgstr "لا توجد هناك روابط ذكية للوثيقة الحالية."
 
-#: views.py:151
+#: views.py:152
 #, python-format
 msgid "Smart link: %s created successfully."
 msgstr "تم انشاء الرابط الذكي %s بنجاح"
 
-#: views.py:174
+#: views.py:175
 #, python-format
 msgid "Smart link: %s edited successfully."
 msgstr "تم تحرير  الرابط الذكي %s بنجاح."
 
-#: views.py:182
+#: views.py:183
 #, python-format
 msgid "Edit smart link: %s"
 msgstr "تحرير الرابط الذكي: %s"
 
-#: views.py:200
+#: views.py:201
 #, python-format
 msgid "Smart link: %s deleted successfully."
 msgstr "تم مسح  الرابط الذكي %s بنجاح."
 
-#: views.py:202
+#: views.py:203
 #, python-format
 msgid "Error deleting smart link: %(smart_link)s; %(exception)s."
 msgstr ""
 
-#: views.py:211
+#: views.py:212
 #, python-format
 msgid "Are you sure you wish to delete smart link: %s?"
 msgstr "هل أنت متأكد من مسح الرابط الذكي: %s ؟"
@@ -305,8 +315,7 @@ msgstr "تم مسح شرط الرابط الذكي \"%s\" بنجاح."
 #: views.py:317
 #, python-format
 msgid ""
-"Error deleting smart link condition: %(smart_link_condition)s; "
-"%(exception)s."
+"Error deleting smart link condition: %(smart_link_condition)s; %(exception)s."
 msgstr ""
 
 #: views.py:331
@@ -330,14 +339,14 @@ msgstr "هل أنت متأكد أنك تريد حذف شرط الرابط الذ
 #~ msgstr "What are smart links?"
 
 #~ msgid ""
-#~ "Smart links are a set of conditional statements that are used to query the "
-#~ "database using the current document the user is accessing as the data "
-#~ "source, the results of these queries are a list of documents that relate in "
-#~ "some manner to the document being displayed and allow users the ability to "
-#~ "jump to and from linked documents very easily."
+#~ "Smart links are a set of conditional statements that are used to query "
+#~ "the database using the current document the user is accessing as the data "
+#~ "source, the results of these queries are a list of documents that relate "
+#~ "in some manner to the document being displayed and allow users the "
+#~ "ability to jump to and from linked documents very easily."
 #~ msgstr ""
-#~ "Smart links are a set of conditional statements that are used to query the "
-#~ "database using the current document the user is accessing as the data "
-#~ "source, the results of these queries are a list of documents that relate in "
-#~ "some manner to the document being displayed and allow users the ability to "
-#~ "jump to and from linked documents very easily."
+#~ "Smart links are a set of conditional statements that are used to query "
+#~ "the database using the current document the user is accessing as the data "
+#~ "source, the results of these queries are a list of documents that relate "
+#~ "in some manner to the document being displayed and allow users the "
+#~ "ability to jump to and from linked documents very easily."

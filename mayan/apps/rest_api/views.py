@@ -53,19 +53,11 @@ class APIAppView(generics.GenericAPIView):
     serializer_class = APIAppSerializer
 
     def get(self, request, app_name, format=None):
-        result = []
-
         api_app = APIEndPoint.get(app_name)
-        for endpoint in api_app.endpoints:
-            result.append(
-                {
-                    'description': endpoint['description'],
-                    'url': reverse(endpoint['view_name'], request=request, format=format),
-                }
-            )
 
         return Response({
-            'endpoints': result
+            'name': api_app.name,
+            'url': reverse('api-version-0-app', args=[unicode(api_app.name)], request=request, format=format)
         })
 
 

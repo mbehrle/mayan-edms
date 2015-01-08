@@ -11,10 +11,8 @@ from common.forms import DetailForm
 from common.widgets import TextAreaDiv
 
 from .models import (Document, DocumentType, DocumentPage,
-                     DocumentPageTransformation, DocumentTypeFilename,
-                     DocumentVersion)
-from .literals import (DEFAULT_ZIP_FILENAME, RELEASE_LEVEL_CHOICES,
-                       RELEASE_LEVEL_FINAL)
+                     DocumentPageTransformation, DocumentTypeFilename)
+from .literals import DEFAULT_ZIP_FILENAME
 from .widgets import DocumentPagesCarouselWidget, DocumentPageImageWidget
 
 
@@ -87,7 +85,7 @@ class DocumentPreviewForm(forms.Form):
         super(DocumentPreviewForm, self).__init__(*args, **kwargs)
         self.fields['preview'].initial = document
         try:
-            self.fields['preview'].label = _(u'Document pages (%d)') % document.pages.count()
+            self.fields['preview'].label = _(u'Document pages (%d)') % document.page_count
         except AttributeError:
             self.fields['preview'].label = _(u'Document pages (%d)') % 0
 
@@ -96,109 +94,27 @@ class DocumentPreviewForm(forms.Form):
 
 class DocumentForm(forms.ModelForm):
     """
-    Baseform for document creation, and editing, made generic enough to
-    be used by document creation from staging files
-    """
-    class Meta:
-        model = Document
-        exclude = ('tags', 'document_type')
-
-    def __init__(self, *args, **kwargs):
-        document_type = kwargs.pop('document_type', None)
-        instance = kwargs.pop('instance', None)
-
-        super(DocumentForm, self).__init__(*args, **kwargs)
-
-        if 'document_type' in self.fields:
-            # To allow merging with DocumentForm_edit
-            self.fields['document_type'].widget = forms.HiddenInput()
-
-        if instance:
-            self.fields['use_file_name'] = forms.BooleanField(
-                label=_(u'Use the new version filename as the document filename'),
-                initial=False,
-                required=False,
-            )
-
-        # Instance's document_type overrides the passed document_type
-        if instance:
-            if hasattr(instance, 'document_type'):
-                document_type = instance.document_type
-
-        if document_type:
-            filenames_qs = document_type.documenttypefilename_set.filter(enabled=True)
-            if filenames_qs.count() > 0:
-                self.fields['document_type_available_filenames'] = forms.ModelChoiceField(
-                    queryset=filenames_qs,
-                    required=False,
-                    label=_(u'Quick document rename'))
-
-        if instance:
-            if instance.latest_version:
-                self.version_fields(instance)
-
-    def version_fields(self, document):
-        self.fields['version_update'] = forms.ChoiceField(
-            label=_(u'Version update'),
-            choices=DocumentVersion.get_version_update_choices(document.latest_version)
-        )
-
-        self.fields['release_level'] = forms.ChoiceField(
-            label=_(u'Release level'),
-            choices=RELEASE_LEVEL_CHOICES,
-            initial=RELEASE_LEVEL_FINAL,
-        )
-
-        self.fields['serial'] = forms.IntegerField(
-            label=_(u'Release level serial'),
-            initial=0,
-            widget=forms.widgets.TextInput(
-                attrs={'style': 'width: auto;'}
-            ),
-        )
-
-        self.fields['comment'] = forms.CharField(
-            label=_(u'Comment'),
-            required=False,
-            widget=forms.widgets.Textarea(attrs={'rows': 4}),
-        )
-
-    new_filename = forms.CharField(
-        label=_('New document filename'), required=False
-    )
-
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        cleaned_data['new_version_data'] = {
-            'comment': self.cleaned_data.get('comment'),
-            'version_update': self.cleaned_data.get('version_update'),
-            'release_level': self.cleaned_data.get('release_level'),
-            'serial': self.cleaned_data.get('serial'),
-        }
-
-        # Always return the full collection of cleaned data.
-        return cleaned_data
-
-
-class DocumentForm_edit(DocumentForm):
-    """
     Form sub classes from DocumentForm used only when editing a document
     """
     class Meta:
         model = Document
-        exclude = ('file', 'document_type', 'tags')
+        fields = ('label', 'description', 'language')
 
     def __init__(self, *args, **kwargs):
-        super(DocumentForm_edit, self).__init__(*args, **kwargs)
-        if kwargs['instance'].latest_version:
-            self.fields.pop('serial')
-            self.fields.pop('release_level')
-            self.fields.pop('version_update')
-            self.fields.pop('comment')
-        else:
-            self.fields.pop('new_filename')
+        document_type = kwargs.pop('document_type', None)
 
-        self.fields.pop('use_file_name')
+        super(DocumentForm, self).__init__(*args, **kwargs)
+
+        # Is a document (documents app edit) and has been saved (sources app upload)?
+        if self.instance and self.instance.pk:
+            document_type = self.instance.document_type
+
+        filenames_qs = document_type.filenames.filter(enabled=True)
+        if filenames_qs.count():
+            self.fields['document_type_available_filenames'] = forms.ModelChoiceField(
+                queryset=filenames_qs,
+                required=False,
+                label=_(u'Quick document rename'))
 
 
 class DocumentPropertiesForm(DetailForm):
@@ -207,7 +123,7 @@ class DocumentPropertiesForm(DetailForm):
     """
     class Meta:
         model = Document
-        fields = ('document_type', 'description',)
+        fields = ('document_type', 'description', 'language')
 
 
 class DocumentContentForm(forms.Form):
@@ -228,7 +144,7 @@ class DocumentContentForm(forms.Form):
         for page in document_pages:
             if page.content:
                 content.append(conditional_escape(force_unicode(page.content)))
-                content.append(u'\n\n\n<hr/><div style="text-align: center;">- %s %s -</div><hr/>\n\n\n' % (ugettext(u'Page'), page.page_number))
+                content.append(u'\n\n\n<hr/><div class="document-page-content-divider">- %s -</div><hr/>\n\n\n' % (ugettext(u'Page %(page_number)d') % {'page_number': page.page_number}))
 
         self.fields['contents'].initial = mark_safe(u''.join(content))
 
@@ -243,7 +159,7 @@ class DocumentTypeSelectForm(forms.Form):
     Form to select the document type of a document to be created, used
     as form #1 in the document creation wizard
     """
-    document_type = forms.ModelChoiceField(queryset=DocumentType.objects.all(), label=(u'Document type'), required=False)
+    document_type = forms.ModelChoiceField(queryset=DocumentType.objects.all(), label=(u'Document type'))
 
 
 class PrintForm(forms.Form):

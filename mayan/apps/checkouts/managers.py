@@ -11,8 +11,9 @@ from documents.models import Document
 from history.api import create_history
 from permissions.models import Permission
 
-from .events import (HISTORY_DOCUMENT_CHECKED_IN, HISTORY_DOCUMENT_AUTO_CHECKED_IN,
-    HISTORY_DOCUMENT_FORCEFUL_CHECK_IN)
+from .events import (HISTORY_DOCUMENT_AUTO_CHECKED_IN,
+                     HISTORY_DOCUMENT_CHECKED_IN,
+                     HISTORY_DOCUMENT_FORCEFUL_CHECK_IN)
 from .exceptions import DocumentNotCheckedOut
 from .literals import STATE_CHECKED_OUT, STATE_CHECKED_IN
 from .permissions import PERMISSION_DOCUMENT_RESTRICTIONS_OVERRIDE
@@ -26,7 +27,7 @@ class DocumentCheckoutManager(models.Manager):
 
     def expired_check_outs(self):
         expired_list = Document.objects.filter(pk__in=self.model.objects.filter(expiration_datetime__lte=now()).values_list('document__pk', flat=True))
-        logger.debug('expired_list: %s' % expired_list)
+        logger.debug('expired_list: %s', expired_list)
         return expired_list
 
     def check_in_expired_check_outs(self):
@@ -82,7 +83,7 @@ class DocumentCheckoutManager(models.Manager):
 
                 if user == checkout_info.user_object:
                     # Allow anything to the user who checked out this document
-                    True
+                    return True
                 else:
                     # If not original user check to see if user has global or this document's PERMISSION_DOCUMENT_RESTRICTIONS_OVERRIDE permission
                     try:

@@ -7,11 +7,9 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
-
-from taggit.models import Tag
 
 from acls.models import AccessEntry
 from acls.views import acl_list_for
@@ -21,11 +19,11 @@ from documents.views import DocumentListView
 from documents.permissions import PERMISSION_DOCUMENT_VIEW
 from permissions.models import Permission
 
-from .forms import TagListForm, TagForm
-from .models import TagProperties
-from .permissions import (PERMISSION_TAG_CREATE, PERMISSION_TAG_ATTACH,
-    PERMISSION_TAG_REMOVE, PERMISSION_TAG_DELETE, PERMISSION_TAG_EDIT,
-    PERMISSION_TAG_VIEW)
+from .forms import TagForm, TagListForm
+from .models import Tag
+from .permissions import (PERMISSION_TAG_ATTACH, PERMISSION_TAG_CREATE,
+                          PERMISSION_TAG_DELETE, PERMISSION_TAG_EDIT,
+                          PERMISSION_TAG_REMOVE, PERMISSION_TAG_VIEW)
 
 logger = logging.getLogger(__name__)
 
@@ -38,15 +36,7 @@ def tag_create(request):
     if request.method == 'POST':
         form = TagForm(request.POST)
         if form.is_valid():
-            tag_name = form.cleaned_data['name']
-
-            if tag_name in Tag.objects.values_list('name', flat=True):
-                messages.error(request, _(u'Tag already exists.'))
-                return HttpResponseRedirect(previous)
-
-            tag = Tag(name=tag_name)
-            tag.save()
-            TagProperties(tag=tag, color=form.cleaned_data['color']).save()
+            tag = form.save()
             apply_default_acls(tag, request.user)
 
             messages.success(request, _(u'Tag created succesfully.'))
@@ -89,7 +79,7 @@ def tag_attach(request, document_id=None, document_id_list=None):
                         'document': document, 'tag': tag}
                     )
                 else:
-                    document.tags.add(tag)
+                    tag.documents.add(document)
                     messages.success(request, _(u'Tag "%(tag)s" attached successfully to document "%(document)s".') % {
                         'document': document, 'tag': tag}
                     )
@@ -98,7 +88,6 @@ def tag_attach(request, document_id=None, document_id_list=None):
         form = TagListForm(user=request.user)
 
     context = {
-        'object_name': _(u'Document'),
         'form': form,
         'previous': previous,
         'next': next,
@@ -111,7 +100,7 @@ def tag_attach(request, document_id=None, document_id_list=None):
         context['title'] = _(u'Attach tag to documents: %s.') % ', '.join([unicode(d) for d in documents])
 
     return render_to_response('main/generic_form.html', context,
-        context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
 
 
 def tag_multiple_attach(request):
@@ -124,7 +113,6 @@ def tag_list(request, queryset=None, extra_context=None):
     context = {
         'title': _(u'Tags'),
         'hide_link': True,
-        'multi_select_as_buttons': True,
         'hide_object': True,
     }
     if extra_context:
@@ -140,7 +128,7 @@ def tag_list(request, queryset=None, extra_context=None):
     context['object_list'] = queryset
 
     return render_to_response('main/generic_list.html', context,
-        context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
 
 
 def tag_delete(request, tag_id=None, tag_id_list=None):
@@ -176,11 +164,9 @@ def tag_delete(request, tag_id=None, tag_id_list=None):
         return HttpResponseRedirect(next)
 
     context = {
-        'object_name': _(u'Tag'),
         'delete_view': True,
         'previous': previous,
         'next': next,
-        'form_icon': u'tag_blue_delete.png',
     }
     if len(tags) == 1:
         context['object'] = tags[0]
@@ -191,7 +177,7 @@ def tag_delete(request, tag_id=None, tag_id_list=None):
         context['message'] = _('Will be removed from all documents.')
 
     return render_to_response('main/generic_confirm.html', context,
-        context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
 
 
 def tag_multiple_delete(request):
@@ -209,26 +195,18 @@ def tag_edit(request, tag_id):
         AccessEntry.objects.check_access(PERMISSION_TAG_EDIT, request.user, tag)
 
     if request.method == 'POST':
-        form = TagForm(request.POST)
+        form = TagForm(data=request.POST, instance=tag)
         if form.is_valid():
-            tag.name = form.cleaned_data['name']
-            tag.save()
-            tag_properties = tag.properties.get()
-            tag_properties.color = form.cleaned_data['color']
-            tag_properties.save()
+            form.save()
             messages.success(request, _(u'Tag updated succesfully.'))
             return HttpResponseRedirect(reverse('tags:tag_list'))
     else:
-        form = TagForm(initial={
-            'name': tag.name,
-            'color': tag.properties.get().color
-        })
+        form = TagForm(instance=tag)
 
     return render_to_response('main/generic_form.html', {
         'title': _(u'Edit tag: %s') % tag,
         'form': form,
         'object': tag,
-        'object_name': _(u'Tag'),
     }, context_instance=RequestContext(request))
 
 
@@ -237,15 +215,13 @@ class TagTaggedItemListView(DocumentListView):
         return get_object_or_404(Tag, pk=self.kwargs['pk'])
 
     def get_queryset(self):
-        return self.get_tag.documents.all()
+        return self.get_tag().documents.all()
 
     def get_extra_context(self):
         return {
             'title': _(u'Documents with the tag "%s"') % self.get_tag(),
             'hide_links': True,
-            'multi_select_as_buttons': True,
             'object': self.get_tag(),
-            'object_name': _(u'Tag'),
         }
 
 
@@ -288,7 +264,6 @@ def tag_remove(request, document_id=None, document_id_list=None, tag_id=None, ta
     context = {
         'previous': previous,
         'next': next,
-        'form_icon': u'tag_blue_delete.png',
     }
 
     template = 'main/generic_confirm.html'
@@ -341,7 +316,7 @@ def tag_remove(request, document_id=None, document_id_list=None, tag_id=None, ta
                         'document': document, 'tag': tag}
                     )
                 else:
-                    document.tags.remove(tag)
+                    tag.documents.remove(document)
                     messages.success(request, _(u'Tag "%(tag)s" removed successfully from document "%(document)s".') % {
                         'document': document, 'tag': tag}
                     )
@@ -349,7 +324,7 @@ def tag_remove(request, document_id=None, document_id_list=None, tag_id=None, ta
         return HttpResponseRedirect(next)
     else:
         return render_to_response(template, context,
-            context_instance=RequestContext(request))
+                                  context_instance=RequestContext(request))
 
 
 def single_document_multiple_tag_remove(request, document_id):
@@ -362,7 +337,7 @@ def multiple_documents_selection_tag_remove(request):
 
 def tag_acl_list(request, tag_pk):
     tag = get_object_or_404(Tag, pk=tag_pk)
-    logger.debug('tag: %s' % tag)
+    logger.debug('tag: %s', tag)
 
     return acl_list_for(
         request,

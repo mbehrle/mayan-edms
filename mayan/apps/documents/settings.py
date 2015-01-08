@@ -1,32 +1,16 @@
 """Configuration options for the documents app"""
 
-import hashlib
 import os
-import uuid
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from smart_settings.api import register_settings
 
-
-def default_checksum(x):
-    """hashlib.sha256(x).hexdigest()"""
-    return hashlib.sha256(x).hexdigest()
-
-
-def default_uuid():
-    """unicode(uuid.uuid4())"""
-    return unicode(uuid.uuid4())
-
-
 register_settings(
     namespace=u'documents',
     module=u'documents.settings',
     settings=[
-        # Saving
-        {'name': u'CHECKSUM_FUNCTION', 'global_name': u'DOCUMENTS_CHECKSUM_FUNCTION', 'default': default_checksum},
-        {'name': u'UUID_FUNCTION', 'global_name': u'DOCUMENTS_UUID_FUNCTION', 'default': default_uuid},
         # Storage
         {'name': u'STORAGE_BACKEND', 'global_name': u'DOCUMENTS_STORAGE_BACKEND', 'default': 'storage.backends.filebasedstorage.FileBasedStorage'},
         # Usage
@@ -42,5 +26,6 @@ register_settings(
         {'name': u'ROTATION_STEP', 'global_name': u'DOCUMENTS_ROTATION_STEP', 'default': 90, 'description': _(u'Amount in degrees to rotate a document page per user interaction.')},
         #
         {'name': u'CACHE_PATH', 'global_name': u'DOCUMENTS_CACHE_PATH', 'default': os.path.join(settings.MEDIA_ROOT, 'image_cache'), 'exists': True},
+        {'name': u'LANGUAGE', 'global_name': u'DOCUMENTS_LANGUAGE', 'default': u'eng', 'description': _('Default documents language (in ISO639-2 format).')},
     ]
 )

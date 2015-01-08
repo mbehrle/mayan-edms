@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 
 {% if side_bar %}
     <div class="block">
@@ -19,9 +20,9 @@
     <div class="inner">
 {% endif %}
     {% if form.is_multipart %}
-        <form name="{{ form.prefix }}" enctype="multipart/form-data" method="{{ submit_method|default:'post' }}" action="{{ form_action }}" class="form">
+        <form name="{{ form.prefix }}" enctype="multipart/form-data" method="{{ submit_method|default:'post' }}" action="{{ form_action }}" class="{{ form_class|default:'form' }}">
     {% else %}
-        <form name="{{ form.prefix }}" method="{{ submit_method|default:'post' }}" action="{{ form_action }}" class="form">
+        <form name="{{ form.prefix }}" method="{{ submit_method|default:'post' }}" action="{{ form_action }}" class="{{ form_class|default:'form' }}">
     {% endif %}
 
         {{ wizard.management_form }}
@@ -58,7 +59,6 @@
                                 <th>
                                     {{ field.label_tag }}{% if field.field.required and not read_only %} ({% trans 'required' %}){% endif %}
                                 </th>
-                            {#{% if field.help_text %}<span class="description">{{ field.help_text }}</span>{% endif %}#}
                             {% endfor %}
                         </tr>
                 {% endif %}
@@ -76,26 +76,17 @@
         {% endif %}
         {% if not read_only %}
         <div class="group navform wat-cf">
-            <button class="button" type="submit" name="{% if form.prefix %}{{ form.prefix }}-submit{% else %}submit{% endif %}">
-                {% if submit_icon_famfam %}
+            <button class="pure-button mayan-button" type="submit" name="{% if form.prefix %}{{ form.prefix }}-submit{% else %}submit{% endif %}">
                     <span class="famfam active famfam-{{ submit_icon_famfam|default:'tick' }}"></span>
-                {% else %}
-                    <img src="{{ STATIC_URL }}web_theme_media/images/icons/tick.png" alt="{% if submit_label %}{{ submit_label }}{% else %}{% if object %}{% trans 'Save' %}{% else %}{% trans 'Submit' %}{% endif %}{% endif %}" />
-                {% endif %}
+
                 {% if submit_label %}{{ submit_label }}{% else %}{% if object %}{% trans 'Save' %}{% else %}{% trans 'Submit' %}{% endif %}{% endif %}
             </button>
 
               {% if previous %}
-                  <a href="#header" onclick='{% if previous %}window.location.replace("{{ previous }}");{% else %}history.go(-1);{% endif %}' class="button">
-                    <img src="{{ STATIC_URL }}web_theme_media/images/icons/cross.png"  alt="{% if cancel_label %}{{ cancel_label }}{% else %}{% trans 'Cancel' %}{% endif %}"/> {% if cancel_label %}{{ cancel_label }}{% else %}{% trans 'Cancel' %}{% endif %}
+                  &nbsp;<a href="#header" onclick='{% if previous %}window.location.replace("{{ previous }}");{% else %}history.go(-1);{% endif %}' class="pure-button mayan-button">
+                    {% if cancel_label %}{{ cancel_label }}{% else %}{% trans 'Cancel' %}{% endif %}
                   </a>
               {% endif %}
-
-            {% comment %}
-            <a href="#header" class="button">
-                <img src="{{ STATIC_URL }}web_theme_media/images/icons/cross.png" alt="{% trans 'Cancel' %}"/> {% trans 'Cancel' %}
-            </a>
-            {% endcomment %}
         </div>
         {% endif %}
     </form>

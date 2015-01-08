@@ -6,6 +6,7 @@ import hashlib
 import logging
 import os
 import tempfile
+import uuid
 
 try:
     from cStringIO import StringIO
@@ -15,11 +16,11 @@ except ImportError:
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.utils.timezone import now
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
 from acls.utils import apply_default_acls
+from common.settings import TEMPORARY_DIRECTORY
 from converter.api import (convert, get_page_count,
                            get_available_transformations_choices)
 from converter.exceptions import UnknownFileFormat
@@ -30,27 +31,17 @@ from mimetype.api import get_mimetype
 
 from .events import HISTORY_DOCUMENT_CREATED
 from .exceptions import NewDocumentVersionNotAllowed
-from .literals import (RELEASE_LEVEL_CHOICES, RELEASE_LEVEL_FINAL,
-                       VERSION_UPDATE_MAJOR, VERSION_UPDATE_MICRO,
-                       VERSION_UPDATE_MINOR)
-from .managers import (DocumentPageTransformationManager, DocumentTypeManager,
-                       RecentDocumentManager)
+from .literals import LANGUAGE_CHOICES
+from .managers import (DocumentManager, DocumentPageTransformationManager,
+                       DocumentTypeManager, RecentDocumentManager)
 from .runtime import storage_backend
-from .settings import (CACHE_PATH, CHECKSUM_FUNCTION, DISPLAY_SIZE,
-                       UUID_FUNCTION, ZOOM_MAX_LEVEL, ZOOM_MIN_LEVEL)
-from .utils import document_save_to_temp_dir
+from .settings import (CACHE_PATH, DISPLAY_SIZE, LANGUAGE, ZOOM_MAX_LEVEL,
+                       ZOOM_MIN_LEVEL)
+from .signals import post_version_upload, post_document_type_change
 
 HASH_FUNCTION = lambda x: hashlib.sha256(x).hexdigest()  # document image cache name hash function
+UUID_FUNCTION = lambda: unicode(uuid.uuid4())
 logger = logging.getLogger(__name__)
-
-
-def get_filename_from_uuid(instance, filename):
-    """
-    Store the orignal filename of the uploaded file and replace it with
-    a UUID
-    """
-    instance.filename = filename
-    return UUID_FUNCTION()
 
 
 class DocumentType(models.Model):
@@ -59,6 +50,9 @@ class DocumentType(models.Model):
     properties can be attached
     """
     name = models.CharField(max_length=32, verbose_name=_(u'Name'), unique=True)
+
+    # TODO: find a way to move this to the ocr app
+    ocr = models.BooleanField(default=True, verbose_name=_(u'Automatically queue newly created documents for OCR.'))
 
     objects = DocumentTypeManager()
 
@@ -78,10 +72,28 @@ class Document(models.Model):
     """
     Defines a single document with it's fields and properties
     """
-    uuid = models.CharField(max_length=48, blank=True, editable=False)
-    document_type = models.ForeignKey(DocumentType, verbose_name=_(u'Document type'), related_name='documents', null=True, blank=True)
+
+    uuid = models.CharField(default=lambda: UUID_FUNCTION(), max_length=48, editable=False)
+    document_type = models.ForeignKey(DocumentType, verbose_name=_(u'Document type'), related_name='documents')
+    label = models.CharField(max_length=255, default=_('Uninitialized document'), db_index=True, help_text=_('The name of the document'), verbose_name=_('Label'))
     description = models.TextField(blank=True, null=True, verbose_name=_(u'Description'))
-    date_added = models.DateTimeField(verbose_name=_(u'Added'), db_index=True, editable=False)
+    date_added = models.DateTimeField(verbose_name=_(u'Added'), auto_now_add=True)
+    language = models.CharField(choices=LANGUAGE_CHOICES, default=LANGUAGE, max_length=8, verbose_name=_('Language'))
+
+    objects = DocumentManager()
+
+    class Meta:
+        verbose_name = _(u'Document')
+        verbose_name_plural = _(u'Documents')
+        ordering = ['-date_added']
+
+    def set_document_type(self, document_type, force=False):
+        has_changed = self.document_type != document_type
+
+        self.document_type = document_type
+        self.save()
+        if has_changed or force:
+            post_document_type_change.send(sender=self.__class__, instance=self)
 
     @staticmethod
     def clear_image_cache():
@@ -90,28 +102,16 @@ class Document(models.Model):
             if os.path.isfile(file_path):
                 os.unlink(file_path)
 
-    class Meta:
-        verbose_name = _(u'Document')
-        verbose_name_plural = _(u'Documents')
-        ordering = ['-date_added']
-
     def __unicode__(self):
-        try:
-            return self.latest_version.filename
-        except AttributeError:
-            # Document has no version yet, let's return a place holder text
-            return ugettext(u'Uninitialized document')
+        return self.label
 
     @models.permalink
     def get_absolute_url(self):
-        return ('documents:document_view_simple', [self.pk])
+        return ('documents:document_preview', [self.pk])
 
     def save(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         new_document = not self.pk
-        if new_document:
-            self.uuid = UUID_FUNCTION()
-            self.date_added = now()
         super(Document, self).save(*args, **kwargs)
 
         if new_document:
@@ -136,7 +136,7 @@ class Document(models.Model):
             return cache_file_path
         else:
             document_version = DocumentVersion.objects.get(pk=version)
-            document_file = document_save_to_temp_dir(document_version, document_version.checksum)
+            document_file = document_version.document.document_save_to_temp_dir(document_version.checksum)
             return convert(input_filepath=document_file, output_filepath=cache_file_path, page=page, transformations=transformations, mimetype=self.file_mimetype)
 
     def get_valid_image(self, size=DISPLAY_SIZE, page=DEFAULT_PAGE_NUMBER, zoom=DEFAULT_ZOOM_LEVEL, rotation=DEFAULT_ROTATION, version=None):
@@ -144,7 +144,7 @@ class Document(models.Model):
             version = self.latest_version.pk
         image_cache_name = self.get_image_cache_name(page=page, version=version)
 
-        logger.debug('image_cache_name: %s' % image_cache_name)
+        logger.debug('image_cache_name: %s', image_cache_name)
 
         return convert(input_filepath=image_cache_name, cleanup_files=False, size=size, zoom=zoom, rotation=rotation)
 
@@ -158,7 +158,7 @@ class Document(models.Model):
         rotation = rotation % 360
 
         file_path = self.get_valid_image(size=size, page=page, zoom=zoom, rotation=rotation, version=version)
-        logger.debug('file_path: %s' % file_path)
+        logger.debug('file_path: %s', file_path)
 
         if as_base64:
             mimetype = get_mimetype(open(file_path, 'r'), file_path, mimetype_only=True)[0]
@@ -187,35 +187,23 @@ class Document(models.Model):
     def size(self):
         return self.latest_version.size
 
-    def new_version(self, file, user=None, comment=None, version_update=None, release_level=None, serial=None):
+    def new_version(self, file_object, user=None, comment=None):
         logger.debug('creating new document version')
         # TODO: move this restriction to a signal processor of the checkouts app
         if not self.is_new_versions_allowed(user=user):
             raise NewDocumentVersionNotAllowed
 
-        if version_update:
-            new_version_dict = self.latest_version.get_new_version_dict(version_update)
-            logger.debug('new_version_dict: %s' % new_version_dict)
-            new_version = DocumentVersion(
-                document=self,
-                file=file,
-                major=new_version_dict.get('major'),
-                minor=new_version_dict.get('minor'),
-                micro=new_version_dict.get('micro'),
-                release_level=release_level,
-                serial=serial,
-                comment=comment,
-            )
-            new_version.save()
-        else:
-            new_version_dict = {}
-            new_version = DocumentVersion(
-                document=self,
-                file=file,
-            )
-            new_version.save()
+        new_version = DocumentVersion(
+            document=self,
+            file=file_object,
+            comment=comment or '',
+        )
+        new_version.save()
 
         logger.debug('new_version saved')
+
+        # TODO: new HISTORY for version updates
+
         return new_version
 
     # Proxy methods
@@ -245,13 +233,10 @@ class Document(models.Model):
     def file_mimetype(self):
         return self.latest_version.mimetype
 
+    # TODO: rename to file_encoding
     @property
     def file_mime_encoding(self):
         return self.latest_version.encoding
-
-    @property
-    def file_filename(self):
-        return self.latest_version.filename
 
     @property
     def date_updated(self):
@@ -275,29 +260,15 @@ class Document(models.Model):
 
     @property
     def page_count(self):
-        return self.pages.count()
+        return self.latest_version.page_count
 
     @property
     def latest_version(self):
         return self.versions.order_by('timestamp').last()
 
-    @property
-    def first_version(self):
-        return self.versions.order_by('timestamp').first()
-
-    def rename(self, new_name):
-        version = self.latest_version
-        return version.rename(new_name)
-
-    def _get_filename(self):
-        return self.latest_version.filename
-
-    def _set_filename(self, value):
-        version = self.latest_version
-        version.filename = value
-        return version.save()
-
-    filename = property(_get_filename, _set_filename)
+    def document_save_to_temp_dir(self, filename, buffer_size=1024 * 1024):
+        temporary_path = os.path.join(TEMPORARY_DIRECTORY, filename)
+        return self.save_to_file(temporary_path, buffer_size)
 
 
 class DocumentVersion(models.Model):
@@ -306,14 +277,6 @@ class DocumentVersion(models.Model):
     """
     _pre_open_hooks = {}
     _post_save_hooks = {}
-
-    @staticmethod
-    def get_version_update_choices(document_version):
-        return (
-            (VERSION_UPDATE_MAJOR, _(u'Major %(major)i.%(minor)i, (new release)') % document_version.get_new_version_dict(VERSION_UPDATE_MAJOR)),
-            (VERSION_UPDATE_MINOR, _(u'Minor %(major)i.%(minor)i, (some updates)') % document_version.get_new_version_dict(VERSION_UPDATE_MINOR)),
-            (VERSION_UPDATE_MICRO, _(u'Micro %(major)i.%(minor)i.%(micro)i, (fixes)') % document_version.get_new_version_dict(VERSION_UPDATE_MICRO))
-        )
 
     @classmethod
     def register_pre_open_hook(cls, order, func):
@@ -324,71 +287,26 @@ class DocumentVersion(models.Model):
         cls._post_save_hooks[order] = func
 
     document = models.ForeignKey(Document, verbose_name=_(u'Document'), related_name='versions')
-    major = models.PositiveIntegerField(verbose_name=_(u'Mayor'), default=1)
-    minor = models.PositiveIntegerField(verbose_name=_(u'Minor'), default=0)
-    micro = models.PositiveIntegerField(verbose_name=_(u'Micro'), default=0)
-    release_level = models.PositiveIntegerField(choices=RELEASE_LEVEL_CHOICES, default=RELEASE_LEVEL_FINAL, verbose_name=_(u'Release level'))
-    serial = models.PositiveIntegerField(verbose_name=_(u'Serial'), default=0)
-    timestamp = models.DateTimeField(verbose_name=_(u'Timestamp'), editable=False, db_index=True)
+    timestamp = models.DateTimeField(verbose_name=_(u'Timestamp'), auto_now_add=True)
     comment = models.TextField(blank=True, verbose_name=_(u'Comment'))
 
     # File related fields
-    file = models.FileField(upload_to=get_filename_from_uuid, storage=storage_backend, verbose_name=_(u'File'))
+    file = models.FileField(upload_to=lambda instance, filename: UUID_FUNCTION(), storage=storage_backend, verbose_name=_(u'File'))
     mimetype = models.CharField(max_length=255, null=True, blank=True, editable=False)
     encoding = models.CharField(max_length=64, null=True, blank=True, editable=False)
-    filename = models.CharField(max_length=255, default=u'', editable=False, db_index=True)
+
     checksum = models.TextField(blank=True, null=True, verbose_name=_(u'Checksum'), editable=False)
 
     class Meta:
-        unique_together = ('document', 'major', 'minor', 'micro', 'release_level', 'serial')
         verbose_name = _(u'Document version')
         verbose_name_plural = _(u'Document version')
-
-    def __unicode__(self):
-        return self.get_formated_version()
-
-    def get_new_version_dict(self, version_update_type):
-        logger.debug('version_update_type: %s' % version_update_type)
-
-        if version_update_type == VERSION_UPDATE_MAJOR:
-            return {
-                'major': self.major + 1,
-                'minor': 0,
-                'micro': 0,
-            }
-        elif version_update_type == VERSION_UPDATE_MINOR:
-            return {
-                'major': self.major,
-                'minor': self.minor + 1,
-                'micro': 0,
-            }
-        elif version_update_type == VERSION_UPDATE_MICRO:
-            return {
-                'major': self.major,
-                'minor': self.minor,
-                'micro': self.micro + 1,
-            }
-
-    def get_formated_version(self):
-        """
-        Return the formatted version information
-        """
-        vers = [u'%i.%i' % (self.major, self.minor), ]
-
-        if self.micro:
-            vers.append(u'.%i' % self.micro)
-        if self.release_level != RELEASE_LEVEL_FINAL:
-            vers.append(u'%s%i' % (self.get_release_level_display(), self.serial))
-        return u''.join(vers)
 
     def save(self, *args, **kwargs):
         """
         Overloaded save method that updates the document version's checksum,
         mimetype, page count and transformation when created
         """
-        new_document = not self.pk
-        if not self.pk:
-            self.timestamp = now()
+        new_document_version = not self.pk
 
         # Only do this for new documents
         transformations = kwargs.pop('transformations', None)
@@ -397,14 +315,17 @@ class DocumentVersion(models.Model):
         for key in sorted(DocumentVersion._post_save_hooks):
             DocumentVersion._post_save_hooks[key](self)
 
-        if new_document:
+        if new_document_version:
             # Only do this for new documents
             self.update_checksum(save=False)
             self.update_mimetype(save=False)
             self.save()
             self.update_page_count(save=False)
+
             if transformations:
                 self.apply_default_transformations(transformations)
+
+            post_version_upload.send(sender=self.__class__, instance=self)
 
     def update_checksum(self, save=True):
         """
@@ -413,7 +334,7 @@ class DocumentVersion(models.Model):
         """
         if self.exists():
             source = self.open()
-            self.checksum = unicode(CHECKSUM_FUNCTION(source.read()))
+            self.checksum = unicode(HASH_FUNCTION(source.read()))
             source.close()
             if save:
                 self.save()
@@ -451,6 +372,7 @@ class DocumentVersion(models.Model):
 
         return detected_pages
 
+    # TODO: remove from here and move to converter app
     def apply_default_transformations(self, transformations):
         # Only apply default transformations on new documents
         if reduce(lambda x, y: x + y, [page.documentpagetransformation_set.count() for page in self.pages.all()]) == 0:
@@ -479,7 +401,7 @@ class DocumentVersion(models.Model):
         """
         if self.exists():
             try:
-                self.mimetype, self.encoding = get_mimetype(self.open(), self.filename)
+                self.mimetype, self.encoding = get_mimetype(self.open(), self.document.label)
             except:
                 self.mimetype = u''
                 self.encoding = u''
@@ -537,16 +459,9 @@ class DocumentVersion(models.Model):
         else:
             return None
 
-    def rename(self, new_name):
-        new_filename, new_extension = os.path.splitext(new_name)
-        name, extension = os.path.splitext(self.filename)
-
-        # Preserve existing extension if new name doesn't has one
-        if new_extension:
-            extension = new_extension
-
-        self.filename = u''.join([new_filename, extension])
-        self.save()
+    @property
+    def page_count(self):
+        return self.pages.count()
 
 
 class DocumentTypeFilename(models.Model):
@@ -554,7 +469,7 @@ class DocumentTypeFilename(models.Model):
     List of filenames available to a specific document type for the
     quick rename functionality
     """
-    document_type = models.ForeignKey(DocumentType, verbose_name=_(u'Document type'))
+    document_type = models.ForeignKey(DocumentType, related_name='filenames', verbose_name=_(u'Document type'))
     filename = models.CharField(max_length=128, verbose_name=_(u'Filename'), db_index=True)
     enabled = models.BooleanField(default=True, verbose_name=_(u'Enabled'))
 
@@ -563,6 +478,7 @@ class DocumentTypeFilename(models.Model):
 
     class Meta:
         ordering = ['filename']
+        unique_together = ('document_type', 'filename')
         verbose_name = _(u'Document type quick rename filename')
         verbose_name_plural = _(u'Document types quick rename filenames')
 
@@ -650,7 +566,7 @@ class RecentDocument(models.Model):
     """
     user = models.ForeignKey(User, verbose_name=_(u'User'), editable=False)
     document = models.ForeignKey(Document, verbose_name=_(u'Document'), editable=False)
-    datetime_accessed = models.DateTimeField(verbose_name=_(u'Accessed'), default=lambda: now(), db_index=True)
+    datetime_accessed = models.DateTimeField(verbose_name=_(u'Accessed'), auto_now=True, db_index=True)
 
     objects = RecentDocumentManager()
 

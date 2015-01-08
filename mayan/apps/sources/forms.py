@@ -7,37 +7,60 @@ from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
 from documents.forms import DocumentForm
+from documents.models import DocumentVersion
 
-from .models import (SourceTransformation, StagingFolderSource, WebFormSource,
-                     WatchFolderSource)
-from .utils import validate_whitelist_blacklist
+from .models import (IMAPEmail, POP3Email, SourceTransformation,
+                     StagingFolderSource, WebFormSource, WatchFolderSource)
 
 logger = logging.getLogger(__name__)
 
 
-class StagingDocumentForm(DocumentForm):
-    """
-    Form that show all the files in the staging folder specified by the
-    StagingFile class passed as 'cls' argument
-    """
+class NewDocumentForm(DocumentForm):
+    class Meta(DocumentForm.Meta):
+        exclude = ('label',)
+
+
+class NewVersionForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        document = kwargs.pop('document')
+        super(NewVersionForm, self).__init__(*args, **kwargs)
+
+        self.fields['comment'] = forms.CharField(
+            label=_(u'Comment'),
+            required=False,
+            widget=forms.widgets.Textarea(attrs={'rows': 4}),
+        )
+
+
+class UploadBaseForm(forms.Form):
     def __init__(self, *args, **kwargs):
         show_expand = kwargs.pop('show_expand', False)
         self.source = kwargs.pop('source')
-        super(StagingDocumentForm, self).__init__(*args, **kwargs)
 
-        try:
-            self.fields['staging_file_id'].choices = [
-                (staging_file.encoded_filename, unicode(staging_file)) for staging_file in self.source.get_files()
-            ]
-        except Exception as exception:
-            logger.error('exception: %s' % exception)
-            pass
+        super(UploadBaseForm, self).__init__(*args, **kwargs)
 
         if show_expand:
             self.fields['expand'] = forms.BooleanField(
                 label=_(u'Expand compressed files'), required=False,
                 help_text=ugettext(u'Upload a compressed file\'s contained files as individual documents')
             )
+
+
+class StagingUploadForm(UploadBaseForm):
+    """
+    Form that show all the files in the staging folder specified by the
+    StagingFile class passed as 'cls' argument
+    """
+    def __init__(self, *args, **kwargs):
+        super(StagingUploadForm, self).__init__(*args, **kwargs)
+
+        try:
+            self.fields['staging_file_id'].choices = [
+                (staging_file.encoded_filename, unicode(staging_file)) for staging_file in self.source.get_files()
+            ]
+        except Exception as exception:
+            logger.error('exception: %s', exception)
+            pass
 
         # Put staging_list field first in the field order list
         staging_list_index = self.fields.keyOrder.index('staging_file_id')
@@ -46,33 +69,16 @@ class StagingDocumentForm(DocumentForm):
 
     staging_file_id = forms.ChoiceField(label=_(u'Staging file'))
 
-    class Meta(DocumentForm.Meta):
-        exclude = ('description', 'file', 'document_type', 'tags')
 
-
-class WebFormForm(DocumentForm):
+class WebFormUploadForm(UploadBaseForm):
     file = forms.FileField(label=_(u'File'))
 
     def __init__(self, *args, **kwargs):
-        show_expand = kwargs.pop('show_expand', False)
-        self.source = kwargs.pop('source')
-        super(WebFormForm, self).__init__(*args, **kwargs)
-
-        if show_expand:
-            self.fields['expand'] = forms.BooleanField(
-                label=_(u'Expand compressed files'), required=False,
-                help_text=ugettext(u'Upload a compressed file\'s contained files as individual documents')
-            )
+        super(WebFormUploadForm, self).__init__(*args, **kwargs)
 
         # Move the file filed to the top
         self.fields.keyOrder.remove('file')
         self.fields.keyOrder.insert(0, 'file')
-
-    def clean_file(self):
-        data = self.cleaned_data['file']
-        validate_whitelist_blacklist(data.name, self.source.whitelist.split(','), self.source.blacklist.split(','))
-
-        return data
 
 
 class WebFormSetupForm(forms.ModelForm):
@@ -83,6 +89,16 @@ class WebFormSetupForm(forms.ModelForm):
 class StagingFolderSetupForm(forms.ModelForm):
     class Meta:
         model = StagingFolderSource
+
+
+class POP3EmailSetupForm(forms.ModelForm):
+    class Meta:
+        model = POP3Email
+
+
+class IMAPEmailSetupForm(forms.ModelForm):
+    class Meta:
+        model = IMAPEmail
 
 
 class WatchFolderSetupForm(forms.ModelForm):

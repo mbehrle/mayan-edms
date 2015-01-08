@@ -36,7 +36,6 @@ class FolderListView(SingleObjectListView):
     def get_extra_context(self):
         return {
             'title': _(u'Folders'),
-            'multi_select_as_buttons': True,
             'hide_link': True,
         }
 
@@ -72,11 +71,10 @@ def folder_edit(request, folder_id):
         AccessEntry.objects.check_access(PERMISSION_FOLDER_EDIT, request.user, folder)
 
     if request.method == 'POST':
-        form = FolderForm(request.POST)
+        form = FolderForm(data=request.POST, instance=folder)
         if form.is_valid():
-            folder.title = form.cleaned_data['title']
             try:
-                folder.save()
+                form.save()
                 messages.success(request, _(u'Folder edited successfully'))
                 return HttpResponseRedirect(reverse('folders:folder_list'))
             except Exception as exception:
@@ -88,7 +86,6 @@ def folder_edit(request, folder_id):
         'title': _(u'Edit folder: %s') % folder,
         'form': form,
         'object': folder,
-        'object_name': _(u'Folder'),
     }, context_instance=RequestContext(request))
 
 
@@ -116,13 +113,11 @@ def folder_delete(request, folder_id):
         return HttpResponseRedirect(next)
 
     context = {
-        'object_name': _(u'Folder'),
         'delete_view': True,
         'previous': previous,
         'next': next,
         'object': folder,
         'title': _(u'Are you sure you with to delete the folder: %s?') % folder,
-        'form_icon': u'folder_delete.png',
     }
 
     return render_to_response('main/generic_confirm.html', context,
@@ -141,15 +136,13 @@ class FolderDetailView(DocumentListView):
         return folder
 
     def get_queryset(self):
-        return self.get_folder().documents
+        return self.get_folder().documents.all()
 
     def get_extra_context(self):
         return {
             'title': _(u'Documents in folder: %s') % self.get_folder(),
             'hide_links': True,
-            'multi_select_as_buttons': True,
             'object': self.get_folder(),
-            'object_name': _(u'Folder'),
         }
 
 
@@ -177,7 +170,8 @@ def folder_add_document(request, document_id=None, document_id_list=None):
         if form.is_valid():
             folder = form.cleaned_data['folder']
             for document in documents:
-                if folder.add_document(document):
+                if document.pk not in folder.documents.values_list('pk', flat=True):
+                    folder.documents.add(document)
                     messages.success(request, _(u'Document: %(document)s added to folder: %(folder)s successfully.') % {
                         'document': document, 'folder': folder})
                 else:
@@ -189,7 +183,6 @@ def folder_add_document(request, document_id=None, document_id_list=None):
         form = FolderListForm(user=request.user)
 
     context = {
-        'object_name': _(u'Document'),
         'form': form,
         'previous': previous,
         'next': next,
@@ -216,7 +209,6 @@ def document_folder_list(request, document_id):
     context = {
         'title': _(u'Folders containing: %s') % document,
         'object': document,
-        'multi_select_as_buttons': True,
         'hide_link': True,
     }
 
@@ -246,13 +238,13 @@ def folder_document_remove(request, folder_id, document_id=None, document_id_lis
         messages.error(request, _(u'Must provide at least one folder document.'))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('main:home')))
 
-    logger.debug('folder_documents (pre permission check): %s' % folder_documents)
+    logger.debug('folder_documents (pre permission check): %s', folder_documents)
     try:
         Permission.objects.check_permissions(request.user, [PERMISSION_FOLDER_REMOVE_DOCUMENT])
     except PermissionDenied:
         folder_documents = AccessEntry.objects.filter_objects_by_access(PERMISSION_FOLDER_REMOVE_DOCUMENT, request.user, folder_documents, exception_on_empty=True)
 
-    logger.debug('folder_documents (post permission check): %s' % folder_documents)
+    logger.debug('folder_documents (post permission check): %s', folder_documents)
 
     previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse('main:home'))))
     next = request.POST.get('next', request.GET.get('next', post_action_redirect if post_action_redirect else request.META.get('HTTP_REFERER', reverse('main:home'))))
@@ -260,7 +252,7 @@ def folder_document_remove(request, folder_id, document_id=None, document_id_lis
     if request.method == 'POST':
         for folder_document in folder_documents:
             try:
-                folder.remove_document(folder_document)
+                folder.documents.remove(folder_document)
                 messages.success(request, _(u'Document: %s removed successfully.') % folder_document)
             except Exception as exception:
                 messages.error(request, _(u'Document: %(document)s delete error: %(error)s') % {
@@ -269,10 +261,8 @@ def folder_document_remove(request, folder_id, document_id=None, document_id_lis
         return HttpResponseRedirect(next)
 
     context = {
-        'object_name': _(u'Folder document'),
         'previous': previous,
         'next': next,
-        'form_icon': u'delete.png',
         'object': folder
     }
     if len(folder_documents) == 1:
@@ -293,7 +283,7 @@ def folder_document_multiple_remove(request, folder_id):
 
 def folder_acl_list(request, folder_pk):
     folder = get_object_or_404(Folder, pk=folder_pk)
-    logger.debug('folder: %s' % folder)
+    logger.debug('folder: %s', folder)
 
     return acl_list_for(
         request,

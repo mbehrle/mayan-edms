@@ -1,20 +1,54 @@
 {% extends 'main/base.html' %}
 
 {% load i18n %}
+{% load static %}
 
 {% load project_tags %}
 
-{% block content %}
-    <div class="content tc">
-        <h1>{% project_name %}</h1>
-        <img src="{{ STATIC_URL }}images/1068504_92921456.jpg" />
-        <h2>{% trans 'Django based open source document management system' %}</h2><hr>
-    </div>
+{% block stylesheets %}
 {% endblock %}
-{% block footer %}
-    <div id="footer">
-        <div class="block">
-            <p>{% trans 'Copyright &copy; 2011 Roberto Rosario.' %}</p>
+
+{% block content %}
+    <div class="pure-g tc">
+        <div class="pure-u-1-3">
+            <a class="pure-button mayan-button-big" href="{% url 'sources:document_create_multiple' %}">
+                <p>
+                    <img src="{% static 'main/icons/page_add.png' %}"><br>
+                    {% trans 'Upload documents' %}
+                </p>
+            </a>
+        </div>
+
+        <div class="pure-u-1-3">
+            <a class="pure-button mayan-button-big" href="{% url 'documents:document_list_recent' %}">
+                <p>
+                    <img src="{% static 'main/icons/page.png' %}"><br>
+                    {% trans 'Recent Documents' %}
+                </p>
+            </a>
+        </div>
+
+        <div class="pure-u-1-3">
+            <a class="pure-button mayan-button-big" href="{% url 'documents:document_list' %}">
+                <p>
+                    <img src="{% static 'main/icons/page.png' %}"><br>
+                    {% trans 'All Documents' %}
+                </p>
+            </a>
+        </div>
+
+        <div class="pure-u-24-24">
+            <form class="pure-form" id="home-form-search" method="get" action="{% url 'main:home' %}">
+                <fieldset>
+                    <legend></legend>
+                    <input type="text" name="q" placeholder="{% trans 'Space separated terms' %}">
+                    &nbsp;<button type="submit" name="submit" class="pure-button mayan-button"><span class="famfam active famfam-zoom"></span>{% trans 'Search' %}</button>
+                    &nbsp;<a href="{% url 'search:search_advanced' %}">{% trans 'Advanced search' %} </a>
+                </fieldset>
+            </form>
         </div>
     </div>
+    {% if query_string %}
+        {% include 'main/generic_list_subtemplate.html' %}
+    {% endif %}
 {% endblock %}

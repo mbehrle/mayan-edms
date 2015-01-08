@@ -14,6 +14,7 @@ from django.shortcuts import redirect, render_to_response
 from django.template import RequestContext
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import FormView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
@@ -65,7 +66,7 @@ def get_obj_from_content_type_string(string):
     return ct.get_object_for_this_type(pk=pk)
 
 
-def assign_remove(request, left_list, right_list, add_method, remove_method, left_list_title, right_list_title, decode_content_type=False, extra_context=None, grouped=False):
+def assign_remove(request, left_list, right_list, add_method, remove_method, left_list_title=None, right_list_title=None, decode_content_type=False, extra_context=None, grouped=False):
     left_list_name = u'left_list'
     right_list_name = u'right_list'
 
@@ -90,13 +91,11 @@ def assign_remove(request, left_list, right_list, add_method, remove_method, lef
                         selection_obj = selection
                     try:
                         add_method(selection_obj)
-                        messages.success(request, _(u'%(selection)s added successfully added to %(right_list_title)s.') % {
-                            'selection': label, 'right_list_title': right_list_title})
                     except:
                         if settings.DEBUG:
                             raise
                         else:
-                            messages.error(request, _(u'Unable to add %(selection)s to %(right_list_title)s.') % {
+                            messages.error(request, _(u'Unable to remove %(selection)s.') % {
                                 'selection': label, 'right_list_title': right_list_title})
 
         elif u'%s-submit' % right_list_name in request.POST.keys():
@@ -117,13 +116,11 @@ def assign_remove(request, left_list, right_list, add_method, remove_method, lef
                         selection = get_obj_from_content_type_string(selection)
                     try:
                         remove_method(selection)
-                        messages.success(request, _(u'%(selection)s added successfully removed from %(right_list_title)s.') % {
-                            'selection': label, 'right_list_title': right_list_title})
                     except:
                         if settings.DEBUG:
                             raise
                         else:
-                            messages.error(request, _(u'Unable to add %(selection)s to %(right_list_title)s.') % {
+                            messages.error(request, _(u'Unable to add %(selection)s.') % {
                                 'selection': label, 'right_list_title': right_list_title})
     unselected_list = ChoiceForm(prefix=left_list_name, choices=left_list())
     selected_list = ChoiceForm(prefix=right_list_name, choices=right_list())
@@ -132,21 +129,21 @@ def assign_remove(request, left_list, right_list, add_method, remove_method, lef
         'subtemplates_list': [
             {
                 'name': 'main/generic_form_subtemplate.html',
-                'grid': 6,
+                'grid': 12,
                 'context': {
                     'form': unselected_list,
-                    'title': left_list_title,
+                    'title': left_list_title or ' ',
                     'submit_label': _(u'Add'),
                     'submit_icon_famfam': 'add'
                 }
             },
             {
                 'name': 'main/generic_form_subtemplate.html',
-                'grid': 6,
+                'grid': 12,
                 'grid_clear': True,
                 'context': {
                     'form': selected_list,
-                    'title': right_list_title,
+                    'title': right_list_title or ' ',
                     'submit_label': _(u'Remove'),
                     'submit_icon_famfam': 'delete'
                 }
@@ -170,7 +167,7 @@ def current_user_details(request):
     return render_to_response(
         'main/generic_form.html', {
             'form': form,
-            'title': _(u'current user details'),
+            'title': _(u'Current user details'),
             'read_only': True,
         },
         context_instance=RequestContext(request))
@@ -394,3 +391,72 @@ class SingleObjectListView(MayanPermissionCheckMixin, ExtraContextMixin, MayanVi
                 return queryset
         else:
             return queryset
+
+
+class MultiFormView(FormView):
+    prefixes = {}
+
+    prefix = None
+
+    def get_form_kwargs(self, form_name):
+        kwargs = {}
+        kwargs.update({'initial': self.get_initial(form_name)})
+        kwargs.update({'prefix': self.get_prefix(form_name)})
+
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+                'files': self.request.FILES,
+            })
+
+        return kwargs
+
+    def _create_form(self, form_name, klass):
+        form_kwargs = self.get_form_kwargs(form_name)
+        form_create_method = 'create_%s_form' % form_name
+        if hasattr(self, form_create_method):
+            form = getattr(self, form_create_method)(**form_kwargs)
+        else:
+            form = klass(**form_kwargs)
+        return form
+
+    def get_forms(self, form_classes):
+        return dict([(key, self._create_form(key, klass)) for key, klass in form_classes.items()])
+
+    def get_initial(self, form_name):
+        initial_method = 'get_%s_initial' % form_name
+        if hasattr(self, initial_method):
+            return getattr(self, initial_method)()
+        else:
+            return self.initial.copy()
+
+    def get_prefix(self, form_name):
+        return self.prefixes.get(form_name, self.prefix)
+
+    def get(self, request, *args, **kwargs):
+        form_classes = self.get_form_classes()
+        forms = self.get_forms(form_classes)
+        return self.render_to_response(self.get_context_data(forms=forms))
+
+    def forms_valid(self, forms):
+        for form_name, form in forms.items():
+            form_valid_method = '%s_form_valid' % form_name
+
+            if hasattr(self, form_valid_method):
+                return getattr(self, form_valid_method)(form)
+
+        self.all_forms_valid(forms)
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def forms_invalid(self, forms):
+        return self.render_to_response(self.get_context_data(forms=forms))
+
+    def post(self, request, *args, **kwargs):
+        form_classes = self.get_form_classes()
+        forms = self.get_forms(form_classes)
+
+        if all([form.is_valid() for form in forms.values()]):
+            return self.forms_valid(forms)
+        else:
+            return self.forms_invalid(forms)

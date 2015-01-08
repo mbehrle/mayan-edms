@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import inspect
 import logging
-import re
 import urllib
 import urlparse
 
@@ -44,8 +43,7 @@ class Link(object):
 
     def __init__(self, text, view, klass=None, args=None, icon=None,
                  permissions=None, condition=None, conditional_disable=None,
-                 description=None, dont_mark_active=False, children_view_regex=None,
-                 keep_query=False, children_classes=None, children_views=None,
+                 description=None, dont_mark_active=False, keep_query=False,
                  conditional_highlight=None):
 
         self.text = text
@@ -61,9 +59,6 @@ class Link(object):
         self.klass = klass
         self.keep_query = keep_query
         self.conditional_highlight = conditional_highlight  # Used by dynamic sources
-        self.children_views = children_views or []
-        self.children_classes = children_classes or []
-        self.children_view_regex = children_view_regex
 
     def resolve(self, context, request=None, current_path=None, current_view=None, resolved_object=None):
         # Don't calculate these if passed in an argument
@@ -144,13 +139,7 @@ class Link(object):
             else:
                 resolved_link.disabled = False
 
-            if current_view in self.children_views:
-                resolved_link.active = True
-
             # TODO: add tree base main menu support to auto activate parent links
-
-            if self.children_view_regex and re.compile(self.children_view_regex).match(current_view):
-                resolved_link.active = True
 
             return resolved_link
 
@@ -176,10 +165,8 @@ class Link(object):
         # TODO: improve name to 'injected...'
         # TODO: remove, only used by staging files
         try:
-            """
-            Check for and inject a temporary navigation dictionary
-            """
-            temp_navigation_links = Variable('temporary_navigation_links').resolve(context)
+            # Check for an inject temporary navigation dictionary
+            temp_navigation_links = Variable('extra_navigation_links').resolve(context)
             if temp_navigation_links:
                 links_dict.update(temp_navigation_links)
         except VariableDoesNotExist:
@@ -249,7 +236,6 @@ class Link(object):
                 objects.setdefault(resolved_object, {})
                 objects[resolved_object]['label'] = object_label
 
-        #logger.debug('objects: %s' % objects)
         return objects
 
     @classmethod
@@ -268,7 +254,7 @@ class Link(object):
         args = []
         kwargs = {}
 
-        if type(src_args) == type([]):
+        if isinstance(src_args, list):
             for i in src_args:
                 try:
                     # Try to execute as a function
@@ -279,7 +265,7 @@ class Link(object):
                         args.append(val)
                 else:
                     args.append(val)
-        elif type(src_args) == type({}):
+        elif isinstance(src_args, dict):
             for key, value in src_args.items():
                 try:
                     # Try to execute as a function

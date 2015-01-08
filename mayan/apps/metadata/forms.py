@@ -4,9 +4,7 @@ from django import forms
 from django.forms.formsets import formset_factory
 from django.utils.translation import ugettext_lazy as _
 
-from common.widgets import ScrollableCheckboxSelectMultiple
-
-from .models import DocumentTypeDefaults, MetadataSet, MetadataType
+from .models import MetadataType
 from .settings import AVAILABLE_FUNCTIONS, AVAILABLE_MODELS, AVAILABLE_VALIDATORS
 
 
@@ -29,16 +27,13 @@ class MetadataForm(forms.Form):
         # Set form fields initial values
         if 'initial' in kwargs:
             self.metadata_type = kwargs['initial'].pop('metadata_type', None)
-            # FIXME:
-            # required = self.document_type.documenttypemetadatatype_set.get(metadata_type=self.metadata_type).required
-            required = False
+            required = kwargs['initial'].pop('required', False)
             required_string = u''
 
             if required:
                 self.fields['value'].required = True
-                required_string = ' (%s)' % _(u'Required')
+                required_string = u' (%s)' % _('Required')
             else:
-                # TODO: FIXME: not working correctly
                 self.fields['value'].required = False
 
             self.fields['name'].initial = '%s%s' % ((self.metadata_type.title if self.metadata_type.title else self.metadata_type.name), required_string)
@@ -73,6 +68,11 @@ MetadataFormSet = formset_factory(MetadataForm, extra=0)
 
 
 class AddMetadataForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        document_type = kwargs.pop('document_type')
+        super(AddMetadataForm, self).__init__(*args, **kwargs)
+        self.fields['metadata_type'].queryset = document_type.metadata.all()
+
     metadata_type = forms.ModelChoiceField(queryset=MetadataType.objects.all(), label=_(u'Metadata type'))
 
 
@@ -80,40 +80,10 @@ class MetadataRemoveForm(MetadataForm):
     update = forms.BooleanField(initial=False, label=_(u'Remove'), required=False)
 
 
-class MetadataSelectionForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        super(MetadataSelectionForm, self).__init__(*args, **kwargs)
-        document_type = getattr(self, 'initial', {}).get('document_type', None)
-        if document_type:
-            try:
-                defaults = document_type.documenttypedefaults_set.get()
-                self.fields['metadata_sets'].initial = defaults.default_metadata_sets.all()
-                self.fields['metadata_types'].initial = defaults.default_metadata.all()
-            except DocumentTypeDefaults.DoesNotExist:
-                pass
-
-    metadata_sets = forms.ModelMultipleChoiceField(
-        queryset=MetadataSet.objects.all(),
-        label=_(u'Metadata sets'),
-        required=False,
-        widget=ScrollableCheckboxSelectMultiple(attrs={'size': 10, 'class': 'choice_form'})
-    )
-
-    metadata_types = forms.ModelMultipleChoiceField(
-        queryset=MetadataType.objects.all(),
-        label=_(u'Metadata'),
-        required=False,
-        widget=ScrollableCheckboxSelectMultiple(attrs={'size': 10, 'class': 'choice_form'})
-    )
-
 MetadataRemoveFormSet = formset_factory(MetadataRemoveForm, extra=0)
 
 
 class MetadataTypeForm(forms.ModelForm):
     class Meta:
+        fields = ('name', 'title', 'default', 'lookup')
         model = MetadataType
-
-
-class MetadataSetForm(forms.ModelForm):
-    class Meta:
-        model = MetadataSet

@@ -5,7 +5,6 @@
 
 {% load navigation_tags %}
 {% load project_tags %}
-{% load registration_tags %}
 {% load settings %}
 {% load variable_tags %}
 
@@ -33,29 +32,17 @@
         {% compress css %}
             <link rel="stylesheet" href="{% static 'web_theme_media/stylesheets/base.css' %}" type="text/css" media="screen" />
             <link rel="stylesheet" href="{% static 'web_theme_media/stylesheets/themes/activo/style.css' %}" type="text/css" media="screen" />
-            <style type="text/css">
-                .message span.dismiss {
-                    padding:0 5px;
-                    cursor:pointer;
-                    float:right;
-                    margin-right:10px;
-                }
-                .message span.dismiss-all {
-                    padding:0 5px;
-                    cursor:pointer;
-                    float:right;
-                    margin-right:10px;
-                }
-                .message a {
-                    text-decoration:none;
-                    font-weight:bold
-                }
-            </style>
             <link rel="stylesheet" href="{% static 'packages/animate-custom.css' %}" type="text/css" media="screen" />
             <link rel="stylesheet" href="{% static 'css/famfamfam-silk-sprite.css' %}" type="text/css" media="screen" />
-            <link rel="stylesheet" href="{% static 'css/960-fluid.css' %}" type="text/css" media="screen" />
             <link rel="stylesheet" href="{% static 'css/override.css' %}" type="text/css" media="screen" />
-            <link rel="stylesheet" href="{% static 'packages/fancyapps-fancyBox-18d1712/source/jquery.fancybox.css' %}" type="text/css" media="screen" />
+            <link rel="stylesheet" href="{% static 'packages/fancyBox-master/source/jquery.fancybox.css' %}" type="text/css" media="screen" />
+
+            <link rel="stylesheet" href="{% static 'common/packages/pure-release-0.5.0/base-min.css' %}" type="text/css" media="screen" />
+            <link rel="stylesheet" href="{% static 'common/packages/pure-release-0.5.0/grids-core-min.css' %}" type="text/css" media="screen" />
+            <link rel="stylesheet" href="{% static 'common/packages/pure-release-0.5.0/grids-min.css' %}" type="text/css" media="screen" />
+            <link rel="stylesheet" href="{% static 'common/packages/pure-release-0.5.0/forms-nr-min.css' %}" type="text/css" media="screen" />
+            <link rel="stylesheet" href="{% static 'common/packages/pure-release-0.5.0/buttons-min.css' %}" type="text/css" media="screen" />
+
             <style type="text/css">
                 #fancybox-left-ico {
                  left: 20px;
@@ -130,6 +117,70 @@
                 .thin_border {
                     border: 1px solid black;
                 }
+
+                .message span.dismiss {
+                    padding:0 5px;
+                    cursor:pointer;
+                    float:right;
+                    margin-right:10px;
+                }
+                .message span.dismiss-all {
+                    padding:0 5px;
+                    cursor:pointer;
+                    float:right;
+                    margin-right:10px;
+                }
+                .message a {
+                    text-decoration:none;
+                    font-weight:bold
+                }
+
+                .lazy-load-carousel-loaded {
+                    width: 100%;
+                }
+
+                .mayan-button-big {
+                    margin: 10px;
+                    border: 1px solid darkgrey !important;
+                    width: 85px;
+                    height: 85px;
+                }
+
+                .mayan-button-big p {
+                    white-space: normal;
+                }
+
+                .mayan-button {
+                    border: 1px solid darkgrey !important;
+                }
+
+                #home-form-search input[type=text] {
+                    width: 50%;
+                }
+
+                .mayan-page-wrapper-interactive {
+                    overflow: auto;
+                }
+
+                #carousel-container {
+                    overflow-x: scroll; height: 500px;
+                }
+
+                .carousel-item {
+                    margin: 5px 10px 10px 10px
+                }
+
+                .carousel-item-page-number {
+                    text-align: center;
+                }
+
+                .img-nolazyload {
+                    border: 1px solid black;
+                }
+
+                .document-page-content-divider {
+                    text-align: center;
+                }
             </style>
             {% block stylesheets %}{% endblock %}
 
@@ -144,7 +195,7 @@
             {% else %}
                 {% if not web_theme_hide_menus %}
                     <div id="header">
-                        <h1><a href="{% url 'main:home' %}">{% project_name %}{% if debug %} {% trans "(DEBUG)" %}{% endif %} - {% registered_name %}</a></h1>
+                        <h1><a href="{% url 'main:home' %}">{% project_name %}{% if debug %} {% trans "(Debug mode)" %}{% endif %}</a></h1>
                         <div id="main-navigation">
                             <ul class="wat-cf" style="width: 73%;">
                                 {% get_top_menu_links %}
@@ -163,12 +214,11 @@
                         </div>
                         <div id="user-navigation">
                             <ul class="wat-cf">
-                                <li><strong>{% trans 'User' %}:</strong>
+                                <li><strong>{% trans 'User' %}: </strong>
                                     {% if not user.is_authenticated %}
                                         {% trans 'Anonymous' %}
                                     {% else %}
-                                        {{ user.get_full_name|default:user }}
-                                            <a href="{% url 'common:current_user_details' %}" title="{% trans 'User details' %}"><span class="famfam active famfam-vcard"></span></a>
+                                        <a href="{% url 'common:current_user_details' %}" title="{% trans 'User details' %}">{{ user.get_full_name|default:user }} <span class="famfam active famfam-vcard"></span></a>
                                     {% endif %}
                                 </li>
 
@@ -258,17 +308,35 @@
                         {% block footer %}{% endblock %}
                     </div><!--end #main-->
                     <div id="sidebar">
-                        {% get_object_navigation_links "secondary_menu" as object_navigation_links %}
+                        {% if navigation_object_list %}
+                            {% for navigation_object_dict in navigation_object_list %}
+                                {% copy_variable navigation_object_dict.object as "navigation_object_name" %}
+                                {% get_object_navigation_links "secondary_menu" as object_navigation_links %}
+                                {% if object_navigation_links %}
+                                    <div class="block">
+                                        <h3>{% trans "Secondary menu" %}</h3>
+                                        <ul class="navigation">
+                                            {% with 'true' as as_li %}
+                                                {% include 'generic_navigation.html' %}
+                                            {% endwith %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% get_object_navigation_links "secondary_menu" as object_navigation_links %}
                             {% if object_navigation_links %}
-                            <div class="block">
-                                <h3>{% trans "Secondary menu" %}</h3>
-                                <ul class="navigation">
-                                    {% with 'true' as as_li %}
-                                        {% include 'generic_navigation.html' %}
-                                    {% endwith %}
-                                </ul>
-                            </div>
+                                <div class="block">
+                                    <h3>{% trans "Secondary menu" %}</h3>
+                                    <ul class="navigation">
+                                        {% with 'true' as as_li %}
+                                            {% include 'generic_navigation.html' %}
+                                        {% endwith %}
+                                    </ul>
+                                </div>
+                            {% endif %}
                         {% endif %}
+
                         {% if navigation_object_list %}
                             {% for navigation_object_dict in navigation_object_list %}
                                 {% copy_variable navigation_object_dict.object as "navigation_object_name" %}
@@ -319,11 +387,7 @@
                             {% if object_navigation_links %}
                                 <div class="block">
                                     {% if navigation_object %}
-                                        {% if object_name %}
-                                            <h3>{% blocktrans %}Actions for {{ object_name }}: {{ navigation_object }}{% endblocktrans %}</h3>
-                                        {% else %}
-                                            <h3>{% blocktrans %}Actions for: {{ navigation_object }}{% endblocktrans %}</h3>
-                                        {% endif %}
+                                        <h3>{% blocktrans %}Actions for: {{ navigation_object }}{% endblocktrans %}</h3>
                                     {% else %}
                                         <h3>{% trans 'Actions' %}</h3>
                                     {% endif %}
@@ -359,13 +423,6 @@
                             </div>
                         {% endif %}
 
-                        {% get_sidebar_templates as sidebar_templates %}
-                        {% for template in sidebar_templates %}
-                            {% with 'true' as side_bar %}
-                                {% include template %}
-                            {% endwith %}
-                        {% endfor %}
-
                         {% block sidebar %}{% endblock %}
                     </div><!--end #sidebar-->
                 </div><!--end #wrapper .wat-cf-->
@@ -376,15 +433,11 @@
         <script type="text/javascript" charset="utf-8" src="{% static 'packages/jquery-2.1.1.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'packages/jquery.scrollview.js' %}"></script>
         <script type="text/javascript" src="{% static 'packages/jquery_lazyload-master/jquery.lazyload.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'packages/jquery.scrollstop.js' %}"></script>
-        <script type="text/javascript" src="{% static 'packages/fancyapps-fancyBox-18d1712/source/jquery.fancybox.pack.js' %}"></script>
-        <script type="text/javascript" src="{% static 'packages/fancyapps-fancyBox-18d1712/lib/jquery.mousewheel-3.0.6.pack.js' %}"></script>
+        <script type="text/javascript" src="{% static 'packages/fancyBox-master/source/jquery.fancybox.pack.js' %}"></script>
+        <script type="text/javascript" src="{% static 'packages/fancyBox-master/lib/jquery.mousewheel.pack.js' %}"></script>
 
         <script type="text/javascript">
             jQuery(document).ready(function() {
-                {% if not disable_auto_focus %}
-                    $("input:text:visible:not(#livesearch):not([readonly]):enabled:first").focus();
-                {% endif %}
                 $('form').submit(function(){
                     $('button', this).click(function() {
                         return false;
@@ -473,9 +526,10 @@
                 }
 
                 function load_document_image(image) {
-                    $.get( image.attr('data-src'), function( result ) {
+                    $.get( image.attr('data-src'), function(result) {
                         if (result.status == 'success') {
                             image.attr('src', result.data);
+                            image.addClass(image.attr('data-post-load-class'));
                         } else if (result.detail == 'unknown_file_format') {
                             image.attr('src', "{% static 'images/mimetypes/unknown.png' %}");
                             set_image_noninteractive(image);
@@ -497,13 +551,13 @@
                 });
 
                 $('img.lazy-load-carousel').lazyload({
-                    container: $(".carousel-container"),
+                    threshold : 400,
+                    container: $("#carousel-container"),
                     appear: function(elements_left, settings) {
                         var $this = $(this);
                         $this.removeClass('lazy-load-carousel');
                         load_document_image($this);
                     },
-                    event: 'scrollstop'
                 });
 
                 $('img.lazy-load-interactive').lazyload({

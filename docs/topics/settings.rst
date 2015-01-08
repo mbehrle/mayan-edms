@@ -8,24 +8,6 @@ different server configurations.
 Documents
 =========
 
-.. setting:: DOCUMENTS_CHECKSUM_FUNCTION
-
-**DOCUMENTS_CHECKSUM_FUNCTION**
-
-Default: ``hashlib.sha256(x).hexdigest()``
-
-The function that will be used to calculate the hash value of each uploaded document.
-
-
-.. setting:: DOCUMENTS_UUID_FUNCTION
-
-**DOCUMENTS_UUID_FUNCTION**
-
-Default: ``unicode(uuid.uuid4())``
-
-The function that will be used to internally identify each uploaded document.
-
-
 .. setting:: DOCUMENTS_STORAGE_BACKEND
 
 **DOCUMENTS_STORAGE_BACKEND**
@@ -49,13 +31,6 @@ Size of the document list and recent document list previews.
 **DOCUMENTS_PRINT_SIZE**
 
 Default: ``1400``
-
-
-.. setting:: DOCUMENTS_MULTIPAGE_PREVIEW_SIZE
-
-**DOCUMENTS_MULTIPAGE_PREVIEW_SIZE**
-
-Default: ``160x120``
 
 
 .. setting:: DOCUMENTS_THUMBNAIL_SIZE
@@ -125,6 +100,15 @@ Amount in degrees to rotate a document page per user interaction.
 Default: ``image_cache`` (inside the `media` folder)
 
 The path where the visual representations of the documents are stored for fast display.
+
+
+.. setting:: DOCUMENTS_LANGUAGE
+
+**DOCUMENTS_LANGUAGE**
+
+Default: ``eng``
+
+Default language selection when creating a document.
 
 
 Converter
@@ -203,17 +187,11 @@ Default: ``/usr/bin/libreoffice``
 Path to the libreoffice binary used to call LibreOffice for office document conversion.
 
 
+**CONVERTER_PDFTOPPM_PATH**
 
-Linking
-=======
+Default: ``/usr/bin/pdftoppm``
 
-.. setting:: LINKING_SHOW_EMPTY_SMART_LINKS
-
-**LINKING_SHOW_EMPTY_SMART_LINKS**
-
-Default: ``True``
-
-Show smart links even when they don't return any documents.
+Path to the Popple program pdftoppm.
 
 
 Storage
@@ -279,25 +257,6 @@ File path to the ``tesseract`` executable, used to perform OCR on document
 page's images.
 
 
-.. setting:: OCR_TESSERACT_LANGUAGE
-
-**OCR_TESSERACT_LANGUAGE**
-
-Default: ``eng``
-
-Language code passed to the ``tesseract`` executable.
-
-
-.. setting:: OCR_AUTOMATIC_OCR
-
-**OCR_AUTOMATIC_OCR**
-
-Default: ``True``
-
-Automatically queue newly created documents or newly uploaded versions
-of existing documents for OCR.
-
-
 .. setting:: OCR_UNPAPER_PATH
 
 **OCR_UNPAPER_PATH**
@@ -347,20 +306,6 @@ Default: ``/tmp``
 Temporary directory used site wide to store thumbnails, previews
 and temporary files. If none is specified, one will be created
 using tempfile.mkdtemp()
-
-
-.. setting:: COMMON_DEFAULT_PAPER_SIZE
-
-**COMMON_DEFAULT_PAPER_SIZE**
-
-Default: ``Letter``
-
-
-.. setting:: COMMON_DEFAULT_PAGE_ORIENTATION
-
-**COMMON_DEFAULT_PAGE_ORIENTATION**
-
-Default: ``Portrait``
 
 
 .. setting:: COMMON_AUTO_CREATE_ADMIN

@@ -31,7 +31,6 @@ from .permissions import (PERMISSION_PERMISSION_GRANT,
 
 
 class RoleCreateView(SingleObjectCreateView):
-    extra_context = {'object_name': _(u'Role')}
     form_class = RoleForm
     model = Role
     permissions_required = [PERMISSION_ROLE_CREATE]
@@ -41,15 +40,10 @@ class RoleCreateView(SingleObjectCreateView):
 class RoleDeleteView(SingleObjectDeleteView):
     model = Role
     permissions_required = [PERMISSION_ROLE_DELETE]
-    extra_context = {
-        'object_name': _(u'Role'),
-        'form_icon': u'medal_gold_delete.png'
-    }
     success_url = reverse_lazy('permissions:role_list')
 
 
 class RoleEditView(SingleObjectEditView):
-    extra_context = {'object_name': _(u'Role')}
     model = Role
     permissions_required = [PERMISSION_ROLE_EDIT]
 
@@ -96,9 +90,7 @@ def role_permissions(request, role_id):
     return render_to_response('main/generic_detail.html', {
         'form': form,
         'object': role,
-        'object_name': _(u'Role'),
         'subtemplates_list': subtemplates_list,
-        'multi_select_as_buttons': True,
         'multi_select_item_properties': {
             'permission_id': lambda x: x.pk,
             'requester_id': lambda x: role.pk,
@@ -155,7 +147,6 @@ def permission_grant(request):
     context = {
         'previous': previous,
         'next': next,
-        'form_icon': u'key_add.png',
     }
 
     context['title'] = _(u'Are you sure you wish to grant the %(permissions_label)s %(title_suffix)s?') % {
@@ -217,7 +208,6 @@ def permission_revoke(request):
     context = {
         'previous': previous,
         'next': next,
-        'form_icon': u'key_delete.png',
     }
 
     context['title'] = _(u'Are you sure you wish to revoke the %(permissions_label)s %(title_suffix)s?') % {
@@ -314,7 +304,6 @@ def role_members(request, role_id):
         right_list_title=_(u'Members of role: %s') % role,
         extra_context={
             'object': role,
-            'object_name': _(u'Role'),
         },
         grouped=True,
     )

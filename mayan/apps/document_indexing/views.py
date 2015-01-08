@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -28,16 +27,15 @@ from .permissions import (PERMISSION_DOCUMENT_INDEXING_CREATE,
                           PERMISSION_DOCUMENT_INDEXING_REBUILD_INDEXES,
                           PERMISSION_DOCUMENT_INDEXING_SETUP,
                           PERMISSION_DOCUMENT_INDEXING_VIEW)
-from .tools import do_rebuild_all_indexes
+from .tasks import task_do_rebuild_all_indexes
 from .widgets import index_instance_item_link, get_breadcrumbs, node_level
-
 
 # Setup views
 
 
 def index_setup_list(request):
     context = {
-        'title': _(u'indexes'),
+        'title': _(u'Indexes'),
         'hide_object': True,
         'list_object_variable_name': 'index',
         'extra_columns': [
@@ -100,7 +98,6 @@ def index_setup_edit(request, index_pk):
         'title': _(u'Edit index: %s') % index,
         'form': form,
         'index': index,
-        'object_name': _(u'Index'),
         'navigation_object_name': 'index',
     }, context_instance=RequestContext(request))
 
@@ -130,13 +127,11 @@ def index_setup_delete(request, index_pk):
 
     context = {
         'index': index,
-        'object_name': _(u'Index'),
         'navigation_object_name': 'index',
         'delete_view': True,
         'previous': previous,
         'next': next,
         'title': _(u'Are you sure you with to delete the index: %s?') % index,
-        'form_icon': u'tab_delete.png',
     }
 
     return render_to_response('main/generic_confirm.html', context,
@@ -156,7 +151,6 @@ def index_setup_view(request, index_pk):
     context = {
         'object_list': object_list,
         'index': index,
-        'object_name': _(u'Index'),
         'list_object_variable_name': 'node',
         'navigation_object_name': 'index',
         'title': _(u'Tree template nodes for index: %s') % index,
@@ -183,7 +177,7 @@ def index_setup_document_types(request, index_pk):
     return assign_remove(
         request,
         left_list=lambda: generate_choices_w_labels(index.get_document_types_not_in_index(), display_object_type=False),
-        right_list=lambda: generate_choices_w_labels(index.get_index_document_types(), display_object_type=False),
+        right_list=lambda: generate_choices_w_labels(index.document_types.all(), display_object_type=False),
         add_method=lambda x: index.document_types.add(x),
         remove_method=lambda x: index.document_types.remove(x),
         left_list_title=_(u'Document types not in index: %s') % index,
@@ -192,7 +186,6 @@ def index_setup_document_types(request, index_pk):
         extra_context={
             'navigation_object_name': 'index',
             'index': index,
-            'object_name': _(u'Index'),
         }
     )
 
@@ -219,7 +212,6 @@ def template_node_create(request, parent_pk):
         'title': _(u'Create child node'),
         'form': form,
         'index': parent_node.index,
-        'object_name': _(u'Index'),
         'navigation_object_name': 'index',
     }, context_instance=RequestContext(request))
 
@@ -282,7 +274,6 @@ def template_node_delete(request, node_pk):
         'previous': previous,
         'next': next,
         'title': _(u'Are you sure you with to delete the index template node: %s?') % node,
-        'form_icon': u'textfield_delete.png',
         'index': node.index,
         'node': node,
 
@@ -329,7 +320,7 @@ def index_instance_node_view(request, index_instance_node_pk):
     of documents
     """
     index_instance = get_object_or_404(IndexInstanceNode, pk=index_instance_node_pk)
-    index_instance_list = [index for index in index_instance.get_children().order_by('value')]
+    index_instance_list = index_instance.get_children().order_by('value')
     breadcrumbs = get_breadcrumbs(index_instance)
 
     try:
@@ -386,20 +377,10 @@ def rebuild_index_instances(request):
             'next': next,
             'title': _(u'Are you sure you wish to rebuild all indexes?'),
             'message': _(u'On large databases this operation may take some time to execute.'),
-            'form_icon': u'folder_page.png',
         }, context_instance=RequestContext(request))
     else:
-        try:
-            warnings = do_rebuild_all_indexes()
-            messages.success(request, _(u'Index rebuild completed successfully.'))
-            for warning in warnings:
-                messages.warning(request, warning)
-
-        except Exception as exception:
-            if settings.DEBUG:
-                raise
-            messages.error(request, _(u'Index rebuild error: %s') % exception)
-
+        task_do_rebuild_all_indexes.apply_async(queue='tools')
+        messages.success(request, _(u'Index rebuild queued successfully.'))
         return HttpResponseRedirect(next)
 
 
@@ -410,12 +391,12 @@ def document_index_list(request, document_id):
     document = get_object_or_404(Document, pk=document_id)
     object_list = []
 
-    queryset = document.indexinstancenode_set.all()
+    queryset = document.node_instances.all()
     try:
         # TODO: should be AND not OR
         Permission.objects.check_permissions(request.user, [PERMISSION_DOCUMENT_VIEW, PERMISSION_DOCUMENT_INDEXING_VIEW])
     except PermissionDenied:
-        queryset = AccessEntry.objects.filter_objects_by_access(PERMISSION_DOCUMENT_INDEXING_VIEW, request.user, queryset)
+        queryset = AccessEntry.objects.filter_objects_by_access(PERMISSION_DOCUMENT_INDEXING_VIEW, request.user, queryset, related='index')
 
     for index_instance in queryset:
         object_list.append(get_breadcrumbs(index_instance, single_link=True, include_count=True))

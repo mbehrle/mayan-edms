@@ -3,8 +3,6 @@ from __future__ import absolute_import
 
 import logging
 import os
-import random
-import string
 import tempfile
 import types
 
@@ -87,7 +85,7 @@ def return_attrib(obj, attrib, arguments=None):
 # http://snippets.dzone.com/posts/show/5434
 # http://snippets.dzone.com/user/jakob
 def pretty_size(size, suffixes=None):
-    suffixes = suffixes if not suffixes is None else [
+    suffixes = suffixes or [
         (u'B', 1024L), (u'K', 1048576L), (u'M', 1073741824L),
         (u'G', 1099511627776L), (u'T', 1125899906842624L)
     ]
@@ -169,28 +167,13 @@ def get_object_name(obj, display_object_type=True):
         return u'%s' % (label)
 
 
-def return_diff(old_obj, new_obj, attrib_list=None):
-    diff_dict = {}
-    if not attrib_list:
-        attrib_list = old_obj.__dict__.keys()
-    for attrib in attrib_list:
-        old_val = getattr(old_obj, attrib)
-        new_val = getattr(new_obj, attrib)
-        if old_val != new_val:
-            diff_dict[attrib] = {
-                'old_value': old_val,
-                'new_value': new_val
-            }
-
-    return diff_dict
-
-
 def validate_path(path):
     if not os.path.exists(path):
         # If doesn't exist try to create it
         try:
             os.mkdir(path)
-        except:
+        except Exception as exception:
+            logger.debug('unhandled exception: %s', exception)
             return False
 
     # Check if it is writable
@@ -198,7 +181,8 @@ def validate_path(path):
         fd, test_filepath = tempfile.mkstemp(dir=path)
         os.close(fd)
         os.unlink(test_filepath)
-    except:
+    except Exception as exception:
+        logger.debug('unhandled exception: %s', exception)
         return False
 
     return True
@@ -209,10 +193,6 @@ def encapsulate(function):
     # Changeset 16045
     # http://stackoverflow.com/questions/6861601/cannot-resolve-callable-context-variable/6955045#6955045
     return lambda: function
-
-
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for x in range(size))
 
 
 def get_descriptor(file_input, read=True):
@@ -250,24 +230,14 @@ def copyfile(source, destination, buffer_size=1024 * 1024):
     destination_descriptor.close()
 
 
-def _lazy_load(fn):
-    _cached = []
-
-    def _decorated():
-        if not _cached:
-            _cached.append(fn())
-        return _cached[0]
-    return _decorated
-
-
 def load_backend(backend_string):
-    logger.debug('loading: %s' % backend_string)
+    logger.debug('loading: %s', backend_string)
     module_name, klass = backend_string.rsplit('.', 1)
 
     try:
         return getattr(import_module(module_name), klass)
     except ImportError as exception:
-        logger.debug('error importing: %s; %s' % (backend_string, exception))
+        logger.debug('error importing: %s; %s', backend_string, exception)
         raise
 
 

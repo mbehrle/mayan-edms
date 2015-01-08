@@ -34,6 +34,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    # Mayan EDMS
+    'suit',
     # Django
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -47,14 +49,13 @@ INSTALLED_APPS = (
     # 3rd party
     'compressor',
     'corsheaders',
+    'djcelery',
     'filetransfers',
     'mptt',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
     'solo',
     'south',
-    'taggit',
     # Base generic
     'acls',
     'common',
@@ -71,8 +72,6 @@ INSTALLED_APPS = (
     'smart_settings',
     'user_management',
     # Mayan EDMS
-    'app_registry',
-    'bootstrap',
     'checkouts',
     'document_acls',
     'document_comments',
@@ -93,6 +92,8 @@ INSTALLED_APPS = (
     'statistics',
     'storage',
     'tags',
+    # Placed after rest_api to allow template overriding
+    'rest_framework_swagger',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -190,8 +191,8 @@ TEMPLATE_LOADERS = (
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
-    'django.core.context_processors.static',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
 )
@@ -214,6 +215,7 @@ WEB_THEME_ENABLE_SCROLL_JS = False
 # --------- Django -------------------
 LOGIN_URL = 'common:login_view'
 LOGIN_REDIRECT_URL = 'main:home'
+INTERNAL_IPS = ('127.0.0.1',)
 # -------- LoginRequiredMiddleware ----------
 LOGIN_EXEMPT_URLS = (
     r'^favicon\.ico$',
@@ -239,14 +241,6 @@ LOGIN_EXEMPT_URLS = (
 PAGINATION_INVALID_PAGE_RAISES_404 = True
 # ---------- Search ------------------
 SEARCH_SHOW_OBJECT_TYPE = False
-
-SERIALIZATION_MODULES = {
-    'better_yaml': 'common.serializers.better_yaml',
-}
-# --------- Taggit ------------
-SOUTH_MIGRATION_MODULES = {
-    'taggit': 'taggit.south_migrations',
-}
 # ---------- Django REST framework -----------
 REST_FRAMEWORK = {
     'PAGINATE_BY': 10,
@@ -261,6 +255,16 @@ REST_FRAMEWORK = {
 # ----------- Celery ----------
 CELERY_TIMEZONE = 'UTC'
 CELERY_ENABLE_UTC = True
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_ALWAYS_EAGER = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 # ------------ CORS ------------
 CORS_ORIGIN_ALLOW_ALL = True
+# ------ Django REST Swagger -----
+SWAGGER_SETTINGS = {
+    "api_version": '0',  # Specify your API's version
+}

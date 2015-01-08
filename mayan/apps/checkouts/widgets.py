@@ -3,23 +3,9 @@ from __future__ import absolute_import
 import datetime
 
 from django import forms
-from django.conf import settings
 from django.core import validators
-from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
-
-from .literals import STATE_ICONS, STATE_LABELS
-
-
-def checkout_widget(document):
-    checkout_state = document.checkout_state()
-
-    widget = (u'<img style="vertical-align: middle;" src="%simages/icons/%s" />' % (settings.STATIC_URL, STATE_ICONS[checkout_state]))
-    return _(u'Document status: %(widget)s %(text)s') % {
-        'widget': mark_safe(widget),
-        'text': STATE_LABELS[checkout_state]
-    }
 
 
 class SplitDeltaWidget(forms.widgets.MultiWidget):
@@ -49,8 +35,8 @@ class SplitHiddenDeltaWidget(forms.widgets.SplitDateTimeWidget):
     """
     is_hidden = True
 
-    def __init__(self, attrs=None):
-        super(SplitHiddenDeltaWidget, self).__init__(attrs, date_format, time_format)
+    def __init__(self, *args, **kwargs):
+        super(SplitHiddenDeltaWidget, self).__init__(*args, **kwargs)
         for widget in self.widgets:
             widget.input_type = 'hidden'
             widget.is_hidden = True

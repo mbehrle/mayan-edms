@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-08 17:12-0400\n"
+"POT-Creation-Date: 2014-10-30 11:36-0400\n"
 "PO-Revision-Date: 2013-11-20 13:14+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: English (http://www.transifex.com/projects/p/mayan-edms/"
@@ -18,90 +18,100 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: __init__.py:52
+#: __init__.py:41
 #, fuzzy
 msgid "Thumbnail"
 msgstr "thumbnail"
 
-#: __init__.py:64
+#: __init__.py:53
 msgid "Returns a list of all the staging folders and the files they contain."
 msgstr ""
 
-#: forms.py:38 forms.py:63
+#: forms.py:28
+msgid "Version update"
+msgstr ""
+
+#: forms.py:33
+msgid "Comment"
+msgstr ""
+
+#: forms.py:48
 msgid "Expand compressed files"
 msgstr "Expand compressed files"
 
-#: forms.py:39 forms.py:64
+#: forms.py:49
 msgid "Upload a compressed file's contained files as individual documents"
 msgstr "Upload a compressed file's contained files as individual documents"
 
-#: forms.py:47
+#: forms.py:74
 msgid "Staging file"
 msgstr "Staging file"
 
-#: forms.py:54
+#: forms.py:78
 msgid "File"
 msgstr "File"
 
-#: links.py:14
+#: links.py:16
 #, fuzzy
 msgid "Upload new documents"
 msgstr "upload new version"
 
-#: links.py:15
-#, fuzzy
-msgid "Clone metadata"
-msgstr "Current metadata"
+#: links.py:17
+msgid "Clone"
+msgstr ""
 
-#: links.py:17 links.py:25 links.py:31
+#: links.py:19 links.py:27 links.py:33
 #, fuzzy
 msgid "Delete"
 msgstr "delete"
 
-#: links.py:19 models.py:145
+#: links.py:21 models.py:86 views.py:382
 #, fuzzy
 msgid "Sources"
 msgstr "sources"
 
-#: links.py:20 literals.py:29 models.py:196
+#: links.py:22
 #, fuzzy
-msgid "Web forms"
-msgstr "web forms"
+msgid "Add new webform source"
+msgstr "add new source"
 
-#: links.py:21 models.py:184
+#: links.py:23
 #, fuzzy
-msgid "Staging folders"
-msgstr "staging folders"
+msgid "Add new staging folder"
+msgstr "server staging folders"
 
-#: links.py:22 models.py:225
+#: links.py:24
 #, fuzzy
-msgid "Watch folders"
-msgstr "watch folders"
+msgid "Add new watch folder"
+msgstr "server watch folders"
 
-#: links.py:24 links.py:30
-msgid "Edit"
+#: links.py:25
+msgid "Add new POP3 email"
 msgstr ""
 
 #: links.py:26
-#, fuzzy
-msgid "Add new source"
-msgstr "add new source"
+msgid "Add new IMAP email"
+msgstr ""
 
-#: links.py:28
+#: links.py:28 links.py:32
+msgid "Edit"
+msgstr ""
+
+#: links.py:30
 #, fuzzy
 msgid "Transformations"
 msgstr "transformations"
 
-#: links.py:29
+#: links.py:31
 #, fuzzy
 msgid "Add transformation"
 msgstr "add transformation"
 
-#: links.py:33
+#: links.py:35
 msgid "Document sources"
 msgstr "Document sources"
 
-#: links.py:35
+#: links.py:37
 #, fuzzy
 msgid "Upload new version"
 msgstr "upload new version"
@@ -118,171 +128,249 @@ msgstr "Never"
 msgid "Ask user"
 msgstr "Ask user"
 
-#: literals.py:23 models.py:195
+#: literals.py:25 models.py:153
 #, fuzzy
 msgid "Web form"
 msgstr "web form"
 
-#: literals.py:24
-#, fuzzy
-msgid "Server staging folder"
-msgstr "server staging folder"
-
-#: literals.py:25
-#, fuzzy
-msgid "Server watch folder"
-msgstr "server watch folder"
-
-#: literals.py:30
-#, fuzzy
-msgid "Server staging folders"
-msgstr "server staging folders"
-
-#: literals.py:31
-#, fuzzy
-msgid "Server watch folders"
-msgstr "server watch folders"
-
-#: models.py:37
-#, fuzzy
-msgid "Title"
-msgstr "title"
-
-#: models.py:38
-#, fuzzy
-msgid "Enabled"
-msgstr "enabled"
-
-#: models.py:39
-#, fuzzy
-msgid "Whitelist"
-msgstr "whitelist"
-
-#: models.py:40
-#, fuzzy
-msgid "Blacklist"
-msgstr "blacklist"
-
-#: models.py:144 views.py:419 views.py:456 views.py:511 views.py:552
-#: views.py:582 views.py:618
-#, fuzzy
-msgid "Source"
-msgstr "source"
-
-#: models.py:150
-msgid "Interactive source"
-msgstr ""
-
-#: models.py:151
-msgid "Interactive sources"
-msgstr ""
-
-#: models.py:158 models.py:211
-#, fuzzy
-msgid "Folder path"
-msgstr "folder path"
-
-#: models.py:158 models.py:211
-msgid "Server side filesystem path."
-msgstr "Server side filesystem path."
-
-#: models.py:159
-#, fuzzy
-msgid "Preview width"
-msgstr "preview width"
-
-#: models.py:159
-msgid "Width value to be passed to the converter backend."
-msgstr "Width value to be passed to the converter backend."
-
-#: models.py:160
-#, fuzzy
-msgid "Preview height"
-msgstr "preview height"
-
-#: models.py:160
-msgid "Height value to be passed to the converter backend."
-msgstr "Height value to be passed to the converter backend."
-
-#: models.py:161 models.py:191 models.py:212
-#, fuzzy
-msgid "Uncompress"
-msgstr "uncompress"
-
-#: models.py:161 models.py:191 models.py:212
-msgid "Whether to expand or not compressed archives."
-msgstr "Whether to expand or not compressed archives."
-
-#: models.py:162 models.py:213
-#, fuzzy
-msgid "Delete after upload"
-msgstr "delete after upload"
-
-#: models.py:162 models.py:213
-msgid "Delete the file after is has been successfully uploaded."
-msgstr "Delete the file after is has been successfully uploaded."
-
-#: models.py:180
-#, python-format
-msgid "Unable get list of staging files: %s"
-msgstr "Unable get list of staging files: %s"
-
-#: models.py:183
+#: literals.py:26 models.py:137
 #, fuzzy
 msgid "Staging folder"
 msgstr "staging folder"
 
-#: models.py:203 models.py:204
-#, fuzzy
-msgid "Out of process"
-msgstr "out of process"
-
-#: models.py:214
-#, fuzzy
-msgid "Interval"
-msgstr "interval"
-
-#: models.py:214
-msgid ""
-"Inverval in seconds where the watch folder path is checked for new documents."
-msgstr ""
-"Inverval in seconds where the watch folder path is checked for new documents."
-
-#: models.py:224
+#: literals.py:27 models.py:351
 #, fuzzy
 msgid "Watch folder"
 msgstr "watch folder"
 
-#: models.py:229
+#: literals.py:28
+msgid "POP3 email"
+msgstr ""
+
+#: literals.py:29 models.py:332 models.py:333
+msgid "IMAP email"
+msgstr ""
+
+#: models.py:41
+#, fuzzy
+msgid "Title"
+msgstr "title"
+
+#: models.py:42 views.py:391
+#, fuzzy
+msgid "Enabled"
+msgstr "enabled"
+
+#: models.py:85 views.py:536 views.py:565
+#, fuzzy
+msgid "Source"
+msgstr "source"
+
+#: models.py:93
+msgid "Interactive source"
+msgstr ""
+
+#: models.py:94
+msgid "Interactive sources"
+msgstr ""
+
+#: models.py:101 models.py:339
+#, fuzzy
+msgid "Folder path"
+msgstr "folder path"
+
+#: models.py:101 models.py:339
+msgid "Server side filesystem path."
+msgstr "Server side filesystem path."
+
+#: models.py:102
+#, fuzzy
+msgid "Preview width"
+msgstr "preview width"
+
+#: models.py:102
+msgid "Width value to be passed to the converter backend."
+msgstr "Width value to be passed to the converter backend."
+
+#: models.py:103
+#, fuzzy
+msgid "Preview height"
+msgstr "preview height"
+
+#: models.py:103
+msgid "Height value to be passed to the converter backend."
+msgstr "Height value to be passed to the converter backend."
+
+#: models.py:104 models.py:146 models.py:168
+#, fuzzy
+msgid "Uncompress"
+msgstr "uncompress"
+
+#: models.py:104 models.py:146
+msgid "Whether to expand or not compressed archives."
+msgstr "Whether to expand or not compressed archives."
+
+#: models.py:105
+#, fuzzy
+msgid "Delete after upload"
+msgstr "delete after upload"
+
+#: models.py:105
+msgid "Delete the file after is has been successfully uploaded."
+msgstr "Delete the file after is has been successfully uploaded."
+
+#: models.py:123
+#, python-format
+msgid "Unable get list of staging files: %s"
+msgstr "Unable get list of staging files: %s"
+
+#: models.py:134
+#, fuzzy, python-format
+msgid "Error deleting staging file; %s"
+msgstr "Unable to delete staging file: %s"
+
+#: models.py:138
+#, fuzzy
+msgid "Staging folders"
+msgstr "staging folders"
+
+#: models.py:154
+#, fuzzy
+msgid "Web forms"
+msgstr "web forms"
+
+#: models.py:161 models.py:162
+#, fuzzy
+msgid "Out of process"
+msgstr "out of process"
+
+#: models.py:166
+#, fuzzy
+msgid "Interval"
+msgstr "interval"
+
+#: models.py:166
+#, fuzzy
+msgid "Interval in seconds between checks for new documents."
+msgstr ""
+"Inverval in seconds where the watch folder path is checked for new documents."
+
+#: models.py:167
+#, fuzzy
+msgid "Document type"
+msgstr "Current document type"
+
+#: models.py:167
+msgid "Assign a document type to documents uploaded from this source."
+msgstr ""
+
+#: models.py:168
+#, fuzzy
+msgid "Whether to expand or not, compressed archives."
+msgstr "Whether to expand or not compressed archives."
+
+#: models.py:207
+#, fuzzy
+msgid "Interval source"
+msgstr "interval"
+
+#: models.py:208
+#, fuzzy
+msgid "Interval sources"
+msgstr "interval"
+
+#: models.py:212
+msgid "Host"
+msgstr ""
+
+#: models.py:213
+msgid "SSL"
+msgstr ""
+
+#: models.py:214
+msgid "Port"
+msgstr ""
+
+#: models.py:214
+msgid ""
+"Typical choices are 110 for POP3, 995 for POP3 over SSL, 143 for IMAP, 993 "
+"for IMAP over SSL."
+msgstr ""
+
+#: models.py:215
+msgid "Username"
+msgstr ""
+
+#: models.py:216
+msgid "Password"
+msgstr ""
+
+#: models.py:235
+#, python-format
+msgid "attachment-%i"
+msgstr ""
+
+#: models.py:244
+#, fuzzy
+msgid "Email source"
+msgstr "edit source: %s"
+
+#: models.py:245
+#, fuzzy
+msgid "Email sources"
+msgstr "edit source: %s"
+
+#: models.py:251
+msgid "Timeout"
+msgstr ""
+
+#: models.py:289 models.py:290
+msgid "POP email"
+msgstr ""
+
+#: models.py:296
+msgid "Mailbox"
+msgstr ""
+
+#: models.py:296
+msgid "Mail from which to check for messages with attached documents."
+msgstr ""
+
+#: models.py:352
+#, fuzzy
+msgid "Watch folders"
+msgstr "watch folders"
+
+#: models.py:356
 msgid "Enter a valid value."
 msgstr "Enter a valid value."
 
-#: models.py:257 views.py:515
+#: models.py:384 views.py:499
 #, fuzzy
 msgid "Order"
 msgstr "order"
 
-#: models.py:258 views.py:516 views.py:553 views.py:583
+#: models.py:385 views.py:500 views.py:537 views.py:566
 #, fuzzy
 msgid "Transformation"
 msgstr "transformation"
 
-#: models.py:259 views.py:517
+#: models.py:386 views.py:501
 #, fuzzy
 msgid "Arguments"
 msgstr "arguments"
 
-#: models.py:259
+#: models.py:386
 #, python-format
 msgid "Use dictionaries to indentify arguments, example: %s"
 msgstr "Use dictionaries to indentify arguments, example: %s"
 
-#: models.py:269
+#: models.py:396
 #, fuzzy
 msgid "Document source transformation"
 msgstr "document source transformation"
 
-#: models.py:270
+#: models.py:397
 #, fuzzy
 msgid "Document source transformations"
 msgstr "document source transformations"
@@ -307,167 +395,162 @@ msgstr "Edit document sources"
 msgid "View existing document sources"
 msgstr "View existing document sources"
 
-#: utils.py:35
-msgid "Whitelist Blacklist validation error."
-msgstr "Whitelist Blacklist validation error."
-
-#: views.py:115
-msgid "Here"
-msgstr ""
-
-#: views.py:120
+#: views.py:118
 msgid "Upload sources"
 msgstr "Upload sources"
 
-#: views.py:122
+#: views.py:120
 msgid ""
 "No interactive document sources have been defined or none have been enabled."
 msgstr ""
 "No interactive document sources have been defined or none have been enabled."
 
-#: views.py:123
-#, python-format
-msgid "Click %(setup_link)s to add or enable some document sources."
-msgstr "Click %(setup_link)s to add or enable some document sources."
-
-#: views.py:221
-msgid "New document queued for uploaded and will be available shortly."
-msgstr ""
-
-#: views.py:224
-#, fuzzy
-msgid "New document version queued for uploaded and will be available shortly."
-msgstr "New document version uploaded successfully."
-
-#: views.py:230
-#, python-format
-msgid "Unhandled exception: %s"
-msgstr "Unhandled exception: %s"
-
-#: views.py:240
-#, fuzzy, python-format
-msgid "Upload a new version from source: %s"
-msgstr "upload a new version from source: %s"
-
-#: views.py:242
-#, fuzzy, python-format
-msgid "Upload a local document from source: %s"
-msgstr "upload a local document from source: %s"
-
-#: views.py:270
+#: views.py:142
 #, fuzzy
 msgid "Files in staging path"
 msgstr "files in staging path"
 
-#: views.py:302
+#: views.py:227
+msgid "New document queued for uploaded and will be available shortly."
+msgstr ""
+
+#: views.py:252
+#, fuzzy, python-format
+msgid "Upload a local document from source: %s"
+msgstr "upload a local document from source: %s"
+
+#: views.py:260
 msgid "Current document type"
 msgstr "Current document type"
 
-#: views.py:303
+#: views.py:261
 msgid "None"
 msgstr "None"
 
-#: views.py:310
+#: views.py:268
 msgid "Current metadata"
 msgstr "Current metadata"
 
-#: views.py:347
+#: views.py:317
+#, fuzzy
+msgid "New document version queued for uploaded and will be available shortly."
+msgstr "New document version uploaded successfully."
+
+#: views.py:343
+#, fuzzy, python-format
+msgid "Upload a new version from source: %s"
+msgstr "upload a new version from source: %s"
+
+#: views.py:359
 msgid "Staging file delete successfully."
 msgstr "Staging file delete successfully."
 
-#: views.py:349
+#: views.py:361
 #, python-format
 msgid "Staging file delete error; %s."
 msgstr "Staging file delete error; %s."
 
-#: views.py:406
+#: views.py:387
+msgid "Type"
+msgstr ""
+
+#: views.py:392
+msgid "Yes"
+msgstr ""
+
+#: views.py:392
+#, fuzzy
+msgid "No"
+msgstr "None"
+
+#: views.py:414
 msgid "Source edited successfully"
 msgstr "Source edited successfully"
 
-#: views.py:409
+#: views.py:417
 #, python-format
 msgid "Error editing source; %s"
 msgstr "Error editing source; %s"
 
-#: views.py:414
+#: views.py:422
 #, fuzzy, python-format
 msgid "Edit source: %s"
 msgstr "edit source: %s"
 
-#: views.py:445
+#: views.py:441
 #, python-format
 msgid "Source \"%s\" deleted successfully."
 msgstr "Source \"%s\" deleted successfully."
 
-#: views.py:447
+#: views.py:443
 #, python-format
 msgid "Error deleting source \"%(source)s\": %(error)s"
 msgstr "Error deleting source \"%(source)s\": %(error)s"
 
-#: views.py:454
+#: views.py:449
 #, python-format
 msgid "Are you sure you wish to delete the source: %s?"
 msgstr "Are you sure you wish to delete the source: %s?"
 
-#: views.py:486
+#: views.py:472
 msgid "Source created successfully"
 msgstr "Source created successfully"
 
-#: views.py:489
+#: views.py:475
 #, python-format
 msgid "Error creating source; %s"
 msgstr "Error creating source; %s"
 
-#: views.py:494
+#: views.py:480
 #, python-format
 msgid "Create new source of type: %s"
 msgstr "Create new source of type: %s"
 
-#: views.py:509
+#: views.py:494
 #, fuzzy, python-format
 msgid "Transformations for: %s"
 msgstr "transformations for: %s"
 
-#: views.py:539
+#: views.py:523
 msgid "Source transformation edited successfully"
 msgstr "Source transformation edited successfully"
 
-#: views.py:542
+#: views.py:526
 #, python-format
 msgid "Error editing source transformation; %s"
 msgstr "Error editing source transformation; %s"
 
-#: views.py:547
+#: views.py:531
 #, python-format
 msgid "Edit transformation: %s"
 msgstr "Edit transformation: %s"
 
-#: views.py:570
+#: views.py:553
 msgid "Source transformation deleted successfully."
 msgstr "Source transformation deleted successfully."
 
-#: views.py:572
+#: views.py:555
 #, python-format
 msgid "Error deleting source transformation; %(error)s"
 msgstr "Error deleting source transformation; %(error)s"
 
-#: views.py:585
+#: views.py:568
 #, python-format
 msgid ""
 "Are you sure you wish to delete source transformation \"%(transformation)s\""
 msgstr ""
 "Are you sure you wish to delete source transformation \"%(transformation)s\""
 
-#: views.py:608
+#: views.py:589
 msgid "Source transformation created successfully"
 msgstr "Source transformation created successfully"
 
-#: views.py:611
+#: views.py:592
 #, python-format
 msgid "Error creating source transformation; %s"
 msgstr "Error creating source transformation; %s"
 
-#: views.py:620
+#: views.py:600
 #, python-format
 msgid "Create new transformation for source: %s"
 msgstr "Create new transformation for source: %s"
@@ -477,21 +560,46 @@ msgstr "Create new transformation for source: %s"
 msgid "Staging file page image"
 msgstr "Staging file"
 
-#: wizards.py:53
-msgid "Step 1 of 3: Document type"
+#: wizards.py:35
+msgid "Step 1 of 2: Select document type"
 msgstr ""
 
-#: wizards.py:54
-msgid "Step 2 of 3: Metadata selection"
+#: wizards.py:36
+msgid "Step 2 of 2: Enter document metadata"
 msgstr ""
 
-#: wizards.py:55
-msgid "Step 3 of 3: Document metadata"
-msgstr ""
-
-#: wizards.py:73
+#: wizards.py:62
 msgid "Next step"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Server staging folder"
+#~ msgstr "server staging folder"
+
+#, fuzzy
+#~ msgid "Server watch folder"
+#~ msgstr "server watch folder"
+
+#~ msgid "Click %(setup_link)s to add or enable some document sources."
+#~ msgstr "Click %(setup_link)s to add or enable some document sources."
+
+#~ msgid "Unhandled exception: %s"
+#~ msgstr "Unhandled exception: %s"
+
+#, fuzzy
+#~ msgid "Clone metadata"
+#~ msgstr "Current metadata"
+
+#, fuzzy
+#~ msgid "Whitelist"
+#~ msgstr "whitelist"
+
+#, fuzzy
+#~ msgid "Blacklist"
+#~ msgstr "blacklist"
+
+#~ msgid "Whitelist Blacklist validation error."
+#~ msgstr "Whitelist Blacklist validation error."
 
 #~ msgid "edit"
 #~ msgstr "edit"
@@ -577,9 +685,6 @@ msgstr ""
 
 #~ msgid "Unable to upload staging file: %s"
 #~ msgstr "Unable to upload staging file: %s"
-
-#~ msgid "Unable to delete staging file: %s"
-#~ msgstr "Unable to delete staging file: %s"
 
 #~ msgid "Staging file transformation error: %(error)s"
 #~ msgstr "Staging file transformation error: %(error)s"

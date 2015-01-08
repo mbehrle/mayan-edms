@@ -1,13 +1,16 @@
 from __future__ import absolute_import
 
 from rest_framework import serializers
-from taggit.models import Tag
+
+from .models import Tag
 
 
-class TagSerializer(serializers.HyperlinkedModelSerializer):
-    color = serializers.CharField(source='properties.get.color')
-    documents = serializers.HyperlinkedIdentityField(view_name='tag-document-list')
+class TagSerializer(serializers.ModelSerializer):
+    documents = serializers.SerializerMethodField('get_documents_count')
 
     class Meta:
-        fields = ('id', 'url', 'name', 'color', 'slug', 'documents')
+        fields = ('id', 'label', 'color', 'documents')
         model = Tag
+
+    def get_documents_count(self, obj):
+        return obj.documents.count()
