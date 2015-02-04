@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django import forms
 from django.utils.translation import ugettext as _
 
@@ -19,6 +21,9 @@ class MultiItemForm(forms.Form):
             else:
                 group.append(action)
 
-        self.fields['action'].choices = choices
+        if choices:
+            self.fields['action'].choices = choices
+        else:
+            self.fields['action'].choices = group
 
-    action = forms.ChoiceField(label=_(u'Actions'), required=False)
+    action = forms.ChoiceField(label=_('Actions'), required=False)

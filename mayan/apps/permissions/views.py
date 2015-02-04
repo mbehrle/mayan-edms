@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import itertools
 from json import loads
@@ -17,35 +17,38 @@ from django.utils.translation import ugettext_lazy as _
 
 from acls.classes import EncapsulatedObject
 from common.models import AnonymousUserSingleton
-from common.views import (SingleObjectCreateView, SingleObjectDeleteView,
-                          SingleObjectEditView, assign_remove)
+from common.views import (
+    SingleObjectCreateView, SingleObjectDeleteView, SingleObjectEditView,
+    assign_remove
+)
 from common.utils import encapsulate, get_object_name
 from common.widgets import two_state_template
 
 from .forms import RoleForm, RoleForm_view
 from .models import Permission, Role
-from .permissions import (PERMISSION_PERMISSION_GRANT,
-                          PERMISSION_PERMISSION_REVOKE, PERMISSION_ROLE_VIEW,
-                          PERMISSION_ROLE_CREATE, PERMISSION_ROLE_DELETE,
-                          PERMISSION_ROLE_EDIT)
+from .permissions import (
+    PERMISSION_PERMISSION_GRANT, PERMISSION_PERMISSION_REVOKE,
+    PERMISSION_ROLE_VIEW, PERMISSION_ROLE_CREATE, PERMISSION_ROLE_DELETE,
+    PERMISSION_ROLE_EDIT
+)
 
 
 class RoleCreateView(SingleObjectCreateView):
     form_class = RoleForm
     model = Role
-    permissions_required = [PERMISSION_ROLE_CREATE]
+    view_permission = PERMISSION_ROLE_CREATE
     success_url = reverse_lazy('permissions:role_list')
 
 
 class RoleDeleteView(SingleObjectDeleteView):
     model = Role
-    permissions_required = [PERMISSION_ROLE_DELETE]
+    view_permission = PERMISSION_ROLE_DELETE
     success_url = reverse_lazy('permissions:role_list')
 
 
 class RoleEditView(SingleObjectEditView):
     model = Role
-    permissions_required = [PERMISSION_ROLE_EDIT]
+    view_permission = PERMISSION_ROLE_EDIT
 
 
 def role_list(request):
@@ -53,12 +56,12 @@ def role_list(request):
 
     context = {
         'object_list': Role.objects.all(),
-        'title': _(u'Roles'),
+        'title': _('Roles'),
         'hide_link': True,
     }
 
     return render_to_response('main/generic_list.html', context,
-        context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
 
 
 def role_permissions(request, role_id):
@@ -69,15 +72,15 @@ def role_permissions(request, role_id):
 
     subtemplates_list = [
         {
-            'name': u'main/generic_list_subtemplate.html',
+            'name': 'main/generic_list_subtemplate.html',
             'context': {
-                'title': _(u'Permissions'),
+                'title': _('Permissions'),
                 'object_list': Permission.objects.all(),
                 'extra_columns': [
-                    {'name': _(u'Namespace'), 'attribute': encapsulate(lambda x: x.namespace)},
-                    {'name': _(u'Name'), 'attribute': encapsulate(lambda x: x.label)},
+                    {'name': _('Namespace'), 'attribute': encapsulate(lambda x: x.namespace)},
+                    {'name': _('Name'), 'attribute': encapsulate(lambda x: x.label)},
                     {
-                        'name': _(u'Has permission'),
+                        'name': _('Has permission'),
                         'attribute': encapsulate(lambda x: two_state_template(x.requester_has_this(role))),
                     },
                 ],
@@ -103,7 +106,6 @@ def role_permissions(request, role_id):
 def permission_grant(request):
     Permission.objects.check_permissions(request.user, [PERMISSION_PERMISSION_GRANT])
     items_property_list = loads(request.GET.get('items_property_list', []))
-    post_action_redirect = None
 
     next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL))))
     previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', reverse(settings.LOGIN_REDIRECT_URL))))
@@ -126,20 +128,20 @@ def permission_grant(request):
     grouped_items = [(grouper, [permission['permission'] for permission in group_data]) for grouper, group_data in groups]
 
     # Warning: trial and error black magic ahead
-    title_suffix = _(u' and ').join([_(u'%(permissions)s to %(requester)s') % {'permissions': ', '.join(['"%s"' % unicode(ps) for ps in p]), 'requester': unicode(r)} for r, p in grouped_items])
+    title_suffix = _(' and ').join([_('%(permissions)s to %(requester)s') % {'permissions': ', '.join(['"%s"' % unicode(ps) for ps in p]), 'requester': unicode(r)} for r, p in grouped_items])
 
     if len(grouped_items) == 1 and len(grouped_items[0][1]) == 1:
-        permissions_label = _(u'Permission')
+        permissions_label = _('Permission')
     else:
-        permissions_label = _(u'Permissions')
+        permissions_label = _('Permissions')
 
     if request.method == 'POST':
         for item in items:
             if item['permission'].grant_to(item['requester']):
-                messages.success(request, _(u'Permission "%(permission)s" granted to: %(requester)s.') % {
+                messages.success(request, _('Permission "%(permission)s" granted to: %(requester)s.') % {
                     'permission': item['permission'], 'requester': item['requester']})
             else:
-                messages.warning(request, _(u'%(requester)s, already had the permission "%(permission)s" granted.') % {
+                messages.warning(request, _('%(requester)s, already had the permission "%(permission)s" granted.') % {
                     'requester': item['requester'], 'permission': item['permission']})
 
         return HttpResponseRedirect(next)
@@ -149,7 +151,7 @@ def permission_grant(request):
         'next': next,
     }
 
-    context['title'] = _(u'Are you sure you wish to grant the %(permissions_label)s %(title_suffix)s?') % {
+    context['title'] = _('Are you sure you wish to grant the %(permissions_label)s %(title_suffix)s?') % {
         'permissions_label': permissions_label,
         'title_suffix': title_suffix,
     }
@@ -158,13 +160,12 @@ def permission_grant(request):
         context['object'] = grouped_items[0][0]
 
     return render_to_response('main/generic_confirm.html', context,
-        context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
 
 
 def permission_revoke(request):
     Permission.objects.check_permissions(request.user, [PERMISSION_PERMISSION_REVOKE])
     items_property_list = loads(request.GET.get('items_property_list', []))
-    post_action_redirect = None
 
     next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', None)))
     previous = request.POST.get('previous', request.GET.get('previous', request.META.get('HTTP_REFERER', None)))
@@ -187,20 +188,20 @@ def permission_revoke(request):
     grouped_items = [(grouper, [permission['permission'] for permission in group_data]) for grouper, group_data in groups]
 
     # Warning: trial and error black magic ahead
-    title_suffix = _(u' and ').join([_(u'%(permissions)s to %(requester)s') % {'permissions': ', '.join(['"%s"' % unicode(ps) for ps in p]), 'requester': unicode(r)} for r, p in grouped_items])
+    title_suffix = _(' and ').join([_('%(permissions)s to %(requester)s') % {'permissions': ', '.join(['"%s"' % unicode(ps) for ps in p]), 'requester': unicode(r)} for r, p in grouped_items])
 
     if len(grouped_items) == 1 and len(grouped_items[0][1]) == 1:
-        permissions_label = _(u'permission')
+        permissions_label = _('permission')
     else:
-        permissions_label = _(u'permissions')
+        permissions_label = _('permissions')
 
     if request.method == 'POST':
         for item in items:
             if item['permission'].revoke_from(item['requester']):
-                messages.success(request, _(u'Permission "%(permission)s" revoked from: %(requester)s.') % {
+                messages.success(request, _('Permission "%(permission)s" revoked from: %(requester)s.') % {
                     'permission': item['permission'], 'requester': item['requester']})
             else:
-                messages.warning(request, _(u'%(requester)s, doesn\'t have the permission "%(permission)s" granted.') % {
+                messages.warning(request, _('%(requester)s, doesn\'t have the permission "%(permission)s" granted.') % {
                     'requester': item['requester'], 'permission': item['permission']})
 
         return HttpResponseRedirect(next)
@@ -210,7 +211,7 @@ def permission_revoke(request):
         'next': next,
     }
 
-    context['title'] = _(u'Are you sure you wish to revoke the %(permissions_label)s %(title_suffix)s?') % {
+    context['title'] = _('Are you sure you wish to revoke the %(permissions_label)s %(title_suffix)s?') % {
         'permissions_label': permissions_label,
         'title_suffix': title_suffix,
     }
@@ -219,11 +220,11 @@ def permission_revoke(request):
         context['object'] = grouped_items[0][0]
 
     return render_to_response('main/generic_confirm.html', context,
-        context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
 
 
 class Member(EncapsulatedObject):
-    source_object_name = u'member_object'
+    source_object_name = 'member_object'
 
 
 def _as_choice_list(items):
@@ -245,13 +246,13 @@ def get_role_members(role, separate=False):
         members = []
 
         if users:
-            members.append((_(u'Users'), _as_choice_list(list(users))))
+            members.append((_('Users'), _as_choice_list(list(users))))
 
         if groups:
-            members.append((_(u'Groups'), _as_choice_list(list(groups))))
+            members.append((_('Groups'), _as_choice_list(list(groups))))
 
         if anonymous:
-            members.append((_(u'Special'), _as_choice_list(list(anonymous))))
+            members.append((_('Special'), _as_choice_list(list(anonymous))))
 
         return members
 
@@ -269,13 +270,13 @@ def get_non_role_members(role):
 
     non_members = []
     if users:
-        non_members.append((_(u'Users'), _as_choice_list(list(users))))
+        non_members.append((_('Users'), _as_choice_list(list(users))))
 
     if groups:
-        non_members.append((_(u'Groups'), _as_choice_list(list(groups))))
+        non_members.append((_('Groups'), _as_choice_list(list(groups))))
 
     if anonymous:
-        non_members.append((_(u'Special'), _as_choice_list(list(anonymous))))
+        non_members.append((_('Special'), _as_choice_list(list(anonymous))))
 
     return non_members
 
@@ -300,8 +301,8 @@ def role_members(request, role_id):
         right_list=lambda: get_role_members(role),
         add_method=lambda x: add_role_member(role, x),
         remove_method=lambda x: remove_role_member(role, x),
-        left_list_title=_(u'Non members of role: %s') % role,
-        right_list_title=_(u'Members of role: %s') % role,
+        left_list_title=_('Non members of role: %s') % role,
+        right_list_title=_('Members of role: %s') % role,
         extra_context={
             'object': role,
         },

@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
 # Translators:
 # Mathias Behrle <mbehrle@m9s.biz>, 2014
@@ -14,18 +14,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:33-0400\n"
-"PO-Revision-Date: 2014-10-08 21:13+0000\n"
+"POT-Creation-Date: 2015-01-27 15:58-0400\n"
+"PO-Revision-Date: 2015-01-27 20:01+0000\n"
 "Last-Translator: Roberto Rosario\n"
-"Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-"
-"edms/language/de_DE/)\n"
-"Language: de_DE\n"
+"Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-edms/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: de_DE\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: forms.py:7 models.py:21
+#: forms.py:9 models.py:23
 msgid "Signature file"
 msgstr "Unterschriftsdatei"
 
@@ -45,19 +44,19 @@ msgstr ""
 msgid "Signatures"
 msgstr ""
 
-#: models.py:20
+#: models.py:22
 msgid "Document version"
 msgstr ""
 
-#: models.py:22
+#: models.py:24
 msgid "Has embedded signature"
 msgstr ""
 
-#: models.py:37
+#: models.py:39
 msgid "Document version signature"
 msgstr ""
 
-#: models.py:38
+#: models.py:40
 msgid "Document version signatures"
 msgstr ""
 
@@ -82,9 +81,9 @@ msgid "Upload detached signatures"
 msgstr "Separate Unterschriften hochladen"
 
 #: views.py:49
-#, fuzzy, python-format
+#, python-format
 msgid "Signature status: %s"
-msgstr "Unterschriftstyp: %s"
+msgstr ""
 
 #: views.py:53
 msgid "Embedded"
@@ -123,19 +122,19 @@ msgstr "Zeitstempel: %s"
 msgid "Signee: %s"
 msgstr "Unterschreibender: %s"
 
-#: views.py:71
+#: views.py:74
 #, python-format
-msgid "Signature properties for: %s"
+msgid "Signature properties for document: %s"
 msgstr ""
 
 #: views.py:97
 msgid "Detached signature uploaded successfully."
 msgstr "Separate Unterschrift erfolgreich hochgeladen."
 
-#: views.py:106
+#: views.py:110
 #, python-format
-msgid "Upload detached signature for: %s"
-msgstr "Externe Unterschrift hochladen für %s"
+msgid "Upload detached signature for document: %s"
+msgstr ""
 
 #: views.py:155
 msgid "Detached signature deleted successfully."
@@ -153,7 +152,7 @@ msgid ""
 msgstr "Separate Unterschrift zu Dokument %s wirklich löschen?"
 
 #~ msgid "Signature status: %(widget)s %(text)s"
-#~ msgstr "Unterschriftsstatus: %(widget)s %(text)s"
+#~ msgstr "Signature status: %(widget)s %(text)s"
 
 #~ msgid "signature file"
 #~ msgstr "signature file"

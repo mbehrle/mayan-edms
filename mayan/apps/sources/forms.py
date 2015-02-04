@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import logging
 
@@ -7,10 +7,11 @@ from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
 from documents.forms import DocumentForm
-from documents.models import DocumentVersion
 
-from .models import (IMAPEmail, POP3Email, SourceTransformation,
-                     StagingFolderSource, WebFormSource, WatchFolderSource)
+from .models import (
+    IMAPEmail, POP3Email, SourceTransformation, StagingFolderSource,
+    WebFormSource, WatchFolderSource
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +23,10 @@ class NewDocumentForm(DocumentForm):
 
 class NewVersionForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        document = kwargs.pop('document')
         super(NewVersionForm, self).__init__(*args, **kwargs)
 
         self.fields['comment'] = forms.CharField(
-            label=_(u'Comment'),
+            label=_('Comment'),
             required=False,
             widget=forms.widgets.Textarea(attrs={'rows': 4}),
         )
@@ -41,8 +41,8 @@ class UploadBaseForm(forms.Form):
 
         if show_expand:
             self.fields['expand'] = forms.BooleanField(
-                label=_(u'Expand compressed files'), required=False,
-                help_text=ugettext(u'Upload a compressed file\'s contained files as individual documents')
+                label=_('Expand compressed files'), required=False,
+                help_text=ugettext('Upload a compressed file\'s contained files as individual documents')
             )
 
 
@@ -67,11 +67,11 @@ class StagingUploadForm(UploadBaseForm):
         staging_list = self.fields.keyOrder.pop(staging_list_index)
         self.fields.keyOrder.insert(0, staging_list)
 
-    staging_file_id = forms.ChoiceField(label=_(u'Staging file'))
+    staging_file_id = forms.ChoiceField(label=_('Staging file'))
 
 
 class WebFormUploadForm(UploadBaseForm):
-    file = forms.FileField(label=_(u'File'))
+    file = forms.FileField(label=_('File'))
 
     def __init__(self, *args, **kwargs):
         super(WebFormUploadForm, self).__init__(*args, **kwargs)
@@ -91,13 +91,20 @@ class StagingFolderSetupForm(forms.ModelForm):
         model = StagingFolderSource
 
 
-class POP3EmailSetupForm(forms.ModelForm):
+class EmailSetupBaseForm(forms.ModelForm):
     class Meta:
+        widgets = {
+            'password': forms.widgets.PasswordInput()
+        }
+
+
+class POP3EmailSetupForm(EmailSetupBaseForm):
+    class Meta(EmailSetupBaseForm.Meta):
         model = POP3Email
 
 
-class IMAPEmailSetupForm(forms.ModelForm):
-    class Meta:
+class IMAPEmailSetupForm(EmailSetupBaseForm):
+    class Meta(EmailSetupBaseForm.Meta):
         model = IMAPEmail
 
 

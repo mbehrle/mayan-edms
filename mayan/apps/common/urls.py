@@ -1,6 +1,7 @@
-from django.conf import settings
+from __future__ import unicode_literals
+
 from django.conf.urls import patterns, url
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import TemplateView
 
 
 urlpatterns = patterns('common.views',
@@ -11,6 +12,9 @@ urlpatterns = patterns('common.views',
 
     url(r'^user/$', 'current_user_details', (), name='current_user_details'),
     url(r'^user/edit/$', 'current_user_edit', (), name='current_user_edit'),
+
+    url(r'^user/locale/$', 'current_user_locale_profile_details', (), name='current_user_locale_profile_details'),
+    url(r'^user/locale/edit/$', 'current_user_locale_profile_edit', (), name='current_user_locale_profile_edit'),
 
     url(r'^login/$', 'login_view', (), name='login_view'),
     url(r'^password/change/$', 'password_change_view', (), name='password_change_view'),
@@ -23,8 +27,6 @@ urlpatterns += patterns('',
     url(r'^password/reset/confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', 'django.contrib.auth.views.password_reset_confirm', {'template_name': 'main/password_reset_confirm.html', 'post_reset_redirect': '/password/reset/complete/'}, name='password_reset_confirm_view'),
     url(r'^password/reset/complete/$', 'django.contrib.auth.views.password_reset_complete', {'template_name': 'main/password_reset_complete.html'}, name='password_reset_complete_view'),
     url(r'^password/reset/done/$', 'django.contrib.auth.views.password_reset_done', {'template_name': 'main/password_reset_done.html'}, name='password_reset_done_view'),
-
-    (r'^favicon\.ico$', RedirectView.as_view(url='%s%s' % (settings.STATIC_URL, 'images/favicon.ico'))),
 )
 
 urlpatterns += patterns('',

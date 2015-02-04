@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import copy
 import inspect
@@ -7,8 +7,9 @@ import urllib
 import urlparse
 
 from django.core.urlresolvers import NoReverseMatch, reverse
-from django.template import (TemplateSyntaxError, Library,
-    VariableDoesNotExist, Node, Variable)
+from django.template import (
+    TemplateSyntaxError, Library, VariableDoesNotExist, Node, Variable
+)
 from django.utils.encoding import smart_str, smart_unicode
 from django.utils.text import unescape_string_literal
 

@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:37-0400\n"
-"PO-Revision-Date: 2014-10-08 21:14+0000\n"
+"POT-Creation-Date: 2015-01-27 16:01-0400\n"
+"PO-Revision-Date: 2014-10-25 07:18+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/zh_CN/)\n"
@@ -20,19 +20,16 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: links.py:10
-#, fuzzy
 msgid "Execute"
-msgstr "执行"
+msgstr ""
 
 #: links.py:11
-#, fuzzy
 msgid "Details"
-msgstr "详细"
+msgstr ""
 
 #: links.py:12
-#, fuzzy
 msgid "Namespace list"
-msgstr "命名空间列表"
+msgstr ""
 
 #: links.py:13
 msgid "Statistics"
@@ -48,22 +45,14 @@ msgid "Namespace details for: %s"
 msgstr ""
 
 #: views.py:48
-#, fuzzy
 msgid "Namespace"
-msgstr "命名空间"
+msgstr ""
 
 #: views.py:49
-#, fuzzy
 msgid "Statistic"
-msgstr "统计"
+msgstr ""
 
 #: views.py:53
 #, python-format
 msgid "Results for: %s"
 msgstr ""
-
-#~ msgid "Central place to store and display app statistics."
-#~ msgstr "存储和显示应用统计中心"
-
-#~ msgid "statistic"
-#~ msgstr "统计"

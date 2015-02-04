@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import logging
 
 from django.contrib.auth.models import User
@@ -13,13 +15,10 @@ from .models import Document, DocumentType, DocumentVersion
 logger = logging.getLogger(__name__)
 
 
-@app.task(bind=True, max_retries=3, default_retry_delay=1, compression='zlib')
-def task_get_document_image(self, document_id, *args, **kwargs):
+@app.task(compression='zlib')
+def task_get_document_image(document_id, *args, **kwargs):
     document = Document.objects.get(pk=document_id)
-    try:
-        return document.get_image(*args, **kwargs)
-    except ConvertError as exception:
-        raise self.retry(exc=exception)
+    return document.get_image(*args, **kwargs)
 
 
 @app.task(ignore_result=True)
@@ -51,13 +50,13 @@ def task_new_document(document_type_id, shared_uploaded_file_id, label, descript
 
     # TODO: Report/record how was file uploaded
     #    if result['is_compressed'] is None:
-    #        messages.success(request, _(u'File uploaded successfully.'))
+    #        messages.success(request, _('File uploaded successfully.'))
 
     #    if result['is_compressed'] is True:
-    #        messages.success(request, _(u'File uncompressed successfully and uploaded as individual files.'))
+    #        messages.success(request, _('File uncompressed successfully and uploaded as individual files.'))
 
     #    if result['is_compressed'] is False:
-    #        messages.warning(request, _(u'File was not a compressed file, uploaded as it was.'))
+    #        messages.warning(request, _('File was not a compressed file, uploaded as it was.'))
 
 
 @app.task(ignore_result=True)

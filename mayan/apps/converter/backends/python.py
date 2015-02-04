@@ -1,8 +1,7 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import io
 import logging
-import tempfile
 
 import slate
 from PIL import Image
@@ -13,9 +12,10 @@ from mimetype.api import get_mimetype
 
 from . import ConverterBase
 from ..exceptions import ConvertError, UnknownFileFormat
-from ..literals import (DEFAULT_FILE_FORMAT, DEFAULT_PAGE_NUMBER,
-                        TRANSFORMATION_RESIZE, TRANSFORMATION_ROTATE,
-                        TRANSFORMATION_ZOOM)
+from ..literals import (
+    DEFAULT_FILE_FORMAT, DEFAULT_PAGE_NUMBER, TRANSFORMATION_RESIZE,
+    TRANSFORMATION_ROTATE, TRANSFORMATION_ZOOM
+)
 from ..settings import PDFTOPPM_PATH
 
 try:

@@ -7,10 +7,13 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
+from __future__ import unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import sys
+
+from django.utils.translation import ugettext_lazy as _
 
 _file_path = os.path.abspath(os.path.dirname(__file__)).split('/')
 
@@ -34,7 +37,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    # Mayan EDMS
+    # 3rd party
     'suit',
     # Django
     'django.contrib.admin',
@@ -65,7 +68,6 @@ INSTALLED_APPS = (
     'lock_manager',
     'mimetype',
     'navigation',
-    'pagination',
     'permissions',
     'project_setup',
     'project_tools',
@@ -77,7 +79,9 @@ INSTALLED_APPS = (
     'document_comments',
     'document_indexing',
     'document_signatures',
+    'document_states',
     'documents',
+    'events',
     'folders',
     'history',
     'installation',
@@ -94,6 +98,12 @@ INSTALLED_APPS = (
     'tags',
     # Placed after rest_api to allow template overriding
     'rest_framework_swagger',
+    # Must be last on Django < 1.7 as per documentation
+    # https://django-activity-stream.readthedocs.org/en/latest/installation.html
+    'actstream',
+    # Pagination app must go after the main app so that the main app can
+    # override the default pagination template
+    'pagination',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -105,10 +115,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'common.middleware.timezone.TimezoneMiddleware',
     'common.middleware.strip_spaces_widdleware.SpacelessMiddleware',
     'common.middleware.login_required_middleware.LoginRequiredMiddleware',
     'permissions.middleware.permission_denied_middleware.PermissionDeniedMiddleware',
     'pagination.middleware.PaginationMiddleware',
+    'common.middleware.ajax_redirect.AjaxRedirect',
 )
 
 ROOT_URLCONF = 'mayan.urls'
@@ -143,32 +155,30 @@ USE_TZ = True
 PROJECT_TITLE = 'Mayan EDMS'
 PROJECT_NAME = 'mayan'
 
-ugettext = lambda s: s
-
 LANGUAGES = (
-    ('ar', ugettext('Arabic')),
-    ('bg', ugettext('Bulgarian')),
-    ('bs', ugettext('Bosnian (Bosnia and Herzegovina)')),
-    ('da', ugettext('Danish')),
-    ('de', ugettext('German (Germany)')),
-    ('en', ugettext('English')),
-    ('es', ugettext('Spanish')),
-    ('fa', ugettext('Persian')),
-    ('fr', ugettext('French')),
-    ('hu', ugettext('Hungarian')),
-    ('hr', ugettext('Croatian')),
-    ('id', ugettext('Indonesian')),
-    ('it', ugettext('Italian')),
-    ('nl', ugettext('Dutch (Nethherlands)')),
-    ('pl', ugettext('Polish')),
-    ('pt', ugettext('Portuguese')),
-    ('pt-br', ugettext('Portuguese (Brazil)')),
-    ('ro', ugettext('Romanian (Romania)')),
-    ('ru', ugettext('Russian')),
-    ('sl', ugettext('Slovenian')),
-    ('tr', ugettext('Turkish')),
-    ('vi', ugettext('Vietnamese (Viet Nam)')),
-    ('zh-cn', ugettext('Chinese (China)')),
+    ('ar', _('Arabic')),
+    ('bg', _('Bulgarian')),
+    ('bs', _('Bosnian (Bosnia and Herzegovina)')),
+    ('da', _('Danish')),
+    ('de', _('German (Germany)')),
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('fa', _('Persian')),
+    ('fr', _('French')),
+    ('hu', _('Hungarian')),
+    ('hr', _('Croatian')),
+    ('id', _('Indonesian')),
+    ('it', _('Italian')),
+    ('nl', _('Dutch (Nethherlands)')),
+    ('pl', _('Polish')),
+    ('pt', _('Portuguese')),
+    ('pt-br', _('Portuguese (Brazil)')),
+    ('ro', _('Romanian (Romania)')),
+    ('ru', _('Russian')),
+    ('sl', _('Slovenian')),
+    ('tr', _('Turkish')),
+    ('vi', _('Vietnamese (Viet Nam)')),
+    ('zh-cn', _('Chinese (China)')),
 )
 
 SITE_ID = 1
@@ -266,5 +276,5 @@ TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 CORS_ORIGIN_ALLOW_ALL = True
 # ------ Django REST Swagger -----
 SWAGGER_SETTINGS = {
-    "api_version": '0',  # Specify your API's version
+    'api_version': '0',  # Specify your API's version
 }

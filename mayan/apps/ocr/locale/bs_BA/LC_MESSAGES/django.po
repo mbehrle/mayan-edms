@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:35-0400\n"
-"PO-Revision-Date: 2014-10-08 21:14+0000\n"
+"POT-Creation-Date: 2015-01-27 15:59-0400\n"
+"PO-Revision-Date: 2015-01-17 07:07+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: Bosnian (Bosnia and Herzegovina) (http://www.transifex.com/"
 "projects/p/mayan-edms/language/bs_BA/)\n"
@@ -21,31 +21,43 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: __init__.py:33 links.py:19 permissions.py:7
+#: __init__.py:37 permissions.py:7
 msgid "OCR"
 msgstr "OCR"
 
-#: api.py:74
+#: __init__.py:67
+msgid "Document"
+msgstr ""
+
+#: __init__.py:70
+msgid "Added"
+msgstr ""
+
+#: __init__.py:73 models.py:14
+msgid "Result"
+msgstr ""
+
+#: api.py:75
 msgid "Text from OCR"
 msgstr "Tekst iz OCR-a"
 
-#: links.py:9 links.py:10
+#: links.py:10 links.py:11
 msgid "Submit to OCR queue"
 msgstr ""
 
-#: links.py:11 links.py:12
+#: links.py:12 links.py:13
 msgid "Re-queue"
 msgstr ""
 
-#: links.py:13 links.py:14
+#: links.py:14 links.py:15
 msgid "Delete"
 msgstr ""
 
-#: links.py:16
+#: links.py:17
 msgid "Clean up pages content"
 msgstr ""
 
-#: links.py:16
+#: links.py:17
 msgid ""
 "Runs a language filter to remove common OCR mistakes from document pages "
 "content."
@@ -53,53 +65,25 @@ msgstr ""
 "Pokreće jezični filter da ukloni uobičajene OCR greške iz sadžaja stranica "
 "dokumenta."
 
-#: links.py:18
-msgid "Queue document list"
+#: links.py:19
+msgid "OCR Errors"
 msgstr ""
 
 #: models.py:12
-msgid "Name"
+msgid "Document version"
 msgstr ""
 
 #: models.py:13
-msgid "Label"
-msgstr ""
-
-#: models.py:16 models.py:24
-msgid "Document queue"
-msgstr ""
-
-#: models.py:17
-msgid "Document queues"
-msgstr ""
-
-#: models.py:25 views.py:37
-msgid "Document"
-msgstr ""
-
-#: models.py:26
 msgid "Date time submitted"
 msgstr ""
 
-#: models.py:27 views.py:41
-msgid "Result"
+#: models.py:21
+msgid "Document Version OCR Error"
 msgstr ""
 
-#: models.py:28
-msgid "Node name"
+#: models.py:22
+msgid "Document Version OCR Errors"
 msgstr ""
-
-#: models.py:32
-msgid "Queue document"
-msgstr ""
-
-#: models.py:33
-msgid "Queue documents"
-msgstr ""
-
-#: models.py:39 views.py:37
-msgid "Missing document."
-msgstr "Nedostaje dokument."
 
 #: permissions.py:8
 msgid "Submit documents for OCR"
@@ -112,10 +96,6 @@ msgstr "Brisati dokumente iz OCR reda"
 #: permissions.py:10
 msgid "Can execute the OCR clean up on all document pages"
 msgstr "Može izvršiti OCR čišćenje u svim stranicama dokumenta"
-
-#: permissions.py:11
-msgid "Can edit an OCR queue properties"
-msgstr "Mogu se urediti osobine OCR reda"
 
 #: settings.py:12
 msgid "File path to unpaper program."
@@ -131,107 +111,129 @@ msgstr ""
 msgid "Full path to the backend to be used to do OCR."
 msgstr ""
 
-#: views.py:31
-#, python-format
-msgid "Documents in queue: %s"
-msgstr ""
-
-#: views.py:38
-msgid "Thumbnail"
-msgstr ""
-
-#: views.py:39
-msgid "Added"
-msgstr ""
-
-#: views.py:40
-msgid "Node"
-msgstr ""
-
-#: views.py:57 views.py:136
-msgid "Must provide at least one queue document."
-msgstr "Mora postojati bar jedan red dokumenta."
-
-#: views.py:67
-#, python-format
-msgid "Queue document: %(document)s deleted successfully."
-msgstr "Red dokumenata: %(document)s uspješno obrisan."
-
-#: views.py:71
-#, python-format
-msgid "Error deleting document: %(document)s; %(error)s"
-msgstr "Greška brisanja dokumenta: %(document)s; %(error)s"
-
-#: views.py:83
-#, python-format
-msgid "Are you sure you wish to delete queue document: %s?"
-msgstr "Jeste li sigurni da želite obrisati dokument u redu: %s?"
-
-#: views.py:85
-#, python-format
-msgid "Are you sure you wish to delete queue documents: %s?"
-msgstr "Jeste li sigurni da želite obrisati dokumente u redu: %s?"
-
-#: views.py:120
+#: views.py:32
 #, python-format
 msgid "Document: %(document)s was added to the OCR queue."
 msgstr ""
 
-#: views.py:148
-#, fuzzy, python-format
-msgid "Document: %(document)s was re-queued for OCR."
-msgstr "Document: %(document)s is already queued."
-
-#: views.py:153
-#, python-format
-msgid "Document id#: %d, no longer exists."
-msgstr "Dokument id#: %d, više ne postoji."
-
-#: views.py:163
-#, python-format
-msgid "Are you sure you wish to re-queue document: %s?"
-msgstr "Jeste li sigurni da želite ponovo uvrstiti u red dokument: %s?"
-
-#: views.py:165
-#, python-format
-msgid "Are you sure you wish to re-queue documents: %s?"
-msgstr "Jeste li sigurni da želite ponovo uvrstiti u red dokumente: %s?"
-
-#: views.py:185
+#: views.py:56
 msgid "Are you sure you wish to clean up all the pages content?"
 msgstr "Jeste li sigurni da želite obrisati sav sadržaj stranica?"
 
-#: views.py:186
+#: views.py:57
 msgid "On large databases this operation may take some time to execute."
 msgstr "Na velikim bazama ova operacija može potrajati duže."
 
-#: views.py:191
+#: views.py:63
 msgid "Document pages content clean up complete."
 msgstr "Potpuno obrisan sadržaj stranica."
 
-#: views.py:193
+#: views.py:65
 #, python-format
 msgid "Document pages content clean up error: %s"
 msgstr "Greška brisanja stranica: %s"
 
-#: parsers/__init__.py:93 parsers/__init__.py:170
+#: views.py:75
+msgid "OCR errors"
+msgstr ""
+
+#: views.py:91 views.py:143
+msgid "Make at least one selection."
+msgstr ""
+
+#: views.py:101
+#, python-format
+msgid "Entry: %(entry)s deleted successfully."
+msgstr ""
+
+#: views.py:105
+#, python-format
+msgid "Error entry: %(entry)s; %(error)s"
+msgstr ""
+
+#: views.py:119
+#, python-format
+msgid "Are you sure you wish to delete the entry: %(entry)s?"
+msgid_plural "Are you sure you wish to delete these %(count)d entries."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: views.py:155
+#, python-format
+msgid "Entry: %(entry)s was re-queued for OCR."
+msgstr ""
+
+#: views.py:160
+#, python-format
+msgid "Document version id#: %d, no longer exists."
+msgstr ""
+
+#: views.py:172
+#, python-format
+msgid "Are you sure you wish to re-queue the entry: %(entry)s?"
+msgid_plural "Are you sure you wish to re-queue these %(count)d entries."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: parsers/__init__.py:94 parsers/__init__.py:171
 msgid "Text extracted from PDF"
 msgstr "Tekst izvađen iz PDF"
 
+#~ msgid "Queue document list"
+#~ msgstr "queue document list"
+
+#~ msgid "Label"
+#~ msgstr "label"
+
+#~ msgid "Document queue"
+#~ msgstr "document queue"
+
+#~ msgid "Node name"
+#~ msgstr "node name"
+
+#~ msgid "Queue document"
+#~ msgstr "queue document"
+
+#~ msgid "Queue documents"
+#~ msgstr "queue documents"
+
+#~ msgid "Missing document."
+#~ msgstr "Missing document."
+
+#~ msgid "Documents in queue: %s"
+#~ msgstr "documents in queue: %s"
+
+#~ msgid "Thumbnail"
+#~ msgstr "thumbnail"
+
+#~ msgid "Are you sure you wish to delete queue documents: %s?"
+#~ msgstr "Are you sure you wish to delete queue documents: %s?"
+
+#~ msgid "Are you sure you wish to re-queue documents: %s?"
+#~ msgstr "Are you sure you wish to re-queue documents: %s?"
+
+#~ msgid "Can edit an OCR queue properties"
+#~ msgstr "Can edit an OCR queue properties"
+
+#~ msgid "OCR queue statistics"
+#~ msgstr "OCR statistics"
+
 #~ msgid "Automatically queue newly created documents for OCR."
-#~ msgstr "Novi kreirani dokumenti se automatski stavljaju u red za OCR."
+#~ msgstr "Automatically queue newly created documents for OCR."
 
 #~ msgid "Document queues: %d"
-#~ msgstr "Redovi dokumenata: %d"
+#~ msgstr "Document queues: %d"
 
 #~ msgid "Queued documents: %d"
-#~ msgstr "Dokumenti u redu: %d"
+#~ msgstr "Queued documents: %d"
 
 #~ msgid "Document: %(document)s was re-queued to the OCR queue: %(queue)s"
-#~ msgstr "Dokument: %(document)s je ponovo uvršten u OCR red: %(queue)s"
+#~ msgstr "Document: %(document)s was re-queued to the OCR queue: %(queue)s"
 
 #~ msgid "Document: %s is already being processed and can't be re-queded."
-#~ msgstr "Dokument: %s je obrađen i ne može ponovo biti ubačen u red."
+#~ msgstr "Document: %s is already being processed and can't be re-queded."
 
 #~ msgid "Checks the OCR queue for pending documents."
 #~ msgstr "Checks the OCR queue for pending documents."
@@ -253,9 +255,6 @@ msgstr "Tekst izvađen iz PDF"
 
 #~ msgid "processing"
 #~ msgstr "processing"
-
-#~ msgid "error"
-#~ msgstr "error"
 
 #~ msgid "name"
 #~ msgstr "name"

@@ -1,10 +1,14 @@
+from __future__ import unicode_literals
+
 from django.conf.urls import patterns, url
 
-from .api_views import (APIDocumentMetadataListView, APIDocumentMetadataView,
-                        APIDocumentTypeMetadataTypeOptionalListView,
-                        APIDocumentTypeMetadataTypeRequiredListView,
-                        APIDocumentTypeMetadataTypeRequiredView,
-                        APIMetadataTypeListView, APIMetadataTypeView)
+from .api_views import (
+    APIDocumentMetadataListView, APIDocumentMetadataView,
+    APIDocumentTypeMetadataTypeOptionalListView,
+    APIDocumentTypeMetadataTypeRequiredListView,
+    APIDocumentTypeMetadataTypeRequiredView, APIMetadataTypeListView,
+    APIMetadataTypeView
+)
 
 urlpatterns = patterns('metadata.views',
     url(r'^(?P<document_id>\d+)/edit/$', 'metadata_edit', (), 'metadata_edit'),
@@ -22,6 +26,8 @@ urlpatterns = patterns('metadata.views',
 
     url(r'^setup/document/type/(?P<document_type_id>\d+)/metadata/edit/$', 'setup_document_type_metadata', (), 'setup_document_type_metadata'),
     url(r'^setup/document/type/(?P<document_type_id>\d+)/metadata/edit/required/$', 'setup_document_type_metadata_required', (), 'setup_document_type_metadata_required'),
+
+    url(r'^tools/missing_required_metadata/$', 'documents_missing_required_metadata', (), 'documents_missing_required_metadata'),
 )
 
 api_urls = patterns('',

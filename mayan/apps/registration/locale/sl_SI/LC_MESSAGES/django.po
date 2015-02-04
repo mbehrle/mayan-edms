@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:37-0400\n"
-"PO-Revision-Date: 2014-10-08 21:14+0000\n"
+"POT-Creation-Date: 2015-01-27 16:00-0400\n"
+"PO-Revision-Date: 2014-10-25 07:18+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: Slovenian (Slovenia) (http://www.transifex.com/projects/p/"
 "mayan-edms/language/sl_SI/)\n"
@@ -78,12 +78,11 @@ msgid "Thank you for registering."
 msgstr "Hvala za prijavo:"
 
 #: views.py:32
-#, fuzzy
 msgid "Registration form"
-msgstr "forma za prijavo"
+msgstr ""
 
 #~ msgid "Error submiting form; %s."
-#~ msgstr "Napaka v pošiljanju forme: %s."
+#~ msgstr "Error submiting form; %s."
 
 #~ msgid "Unregistered"
-#~ msgstr "Neprijavljen"
+#~ msgstr "Unregistered"

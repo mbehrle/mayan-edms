@@ -1,7 +1,7 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from django import forms
-from django.conf import settings
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.urlresolvers import reverse
 from django.utils.html import strip_tags
 from django.utils.http import urlencode
@@ -9,8 +9,9 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
-from converter.literals import (DEFAULT_PAGE_NUMBER, DEFAULT_ROTATION,
-                                DEFAULT_ZOOM_LEVEL)
+from converter.literals import (
+    DEFAULT_PAGE_NUMBER, DEFAULT_ROTATION, DEFAULT_ZOOM_LEVEL
+)
 
 from .settings import DISPLAY_SIZE, THUMBNAIL_SIZE
 
@@ -22,12 +23,12 @@ class DocumentPageImageWidget(forms.widgets.Widget):
         rotation = final_attrs.get('rotation', 0)
         if value:
             output = []
-            output.append('<div class="full-height scrollable mayan-page-wrapper-interactive">')
+            output.append('<div class="full-height scrollable mayan-page-wrapper-interactive" data-height-difference=230>')
             output.append(document_html_widget(value.document, page=value.page_number, zoom=zoom, rotation=rotation, image_class='lazy-load-interactive', nolazyload=False, size=DISPLAY_SIZE))
             output.append('</div>')
-            return mark_safe(u''.join(output))
+            return mark_safe(''.join(output))
         else:
-            return u''
+            return ''
 
 
 class DocumentPagesCarouselWidget(forms.widgets.Widget):
@@ -36,7 +37,7 @@ class DocumentPagesCarouselWidget(forms.widgets.Widget):
     """
     def render(self, name, value, attrs=None):
         output = []
-        output.append(u'<div id="carousel-container">')
+        output.append('<div id="carousel-container" class="full-height scrollable" data-height-difference=360>')
 
         try:
             document_pages = value.pages.all()
@@ -47,7 +48,7 @@ class DocumentPagesCarouselWidget(forms.widgets.Widget):
         latest_version_pk = value.latest_version.pk
 
         for page in document_pages:
-            output.append(u'<div class="carousel-item">')
+            output.append('<div class="carousel-item">')
             output.append(
                 document_html_widget(
                     page.document,
@@ -61,12 +62,12 @@ class DocumentPagesCarouselWidget(forms.widgets.Widget):
                     post_load_class='lazy-load-carousel-loaded',
                 )
             )
-            output.append(u'<div class="carousel-item-page-number">%s</div>' % ugettext(u'Page %(page_number)d') % {'page_number': page.page_number})
-            output.append(u'</div>')
+            output.append('<div class="carousel-item-page-number">%s</div>' % ugettext('Page %(page_number)d') % {'page_number': page.page_number})
+            output.append('</div>')
 
-        output.append(u'</div>')
+        output.append('</div>')
 
-        return mark_safe(u''.join(output))
+        return mark_safe(''.join(output))
 
 
 def document_thumbnail(document, **kwargs):
@@ -74,13 +75,13 @@ def document_thumbnail(document, **kwargs):
 
 
 def document_link(document):
-    return mark_safe(u'<a href="%s">%s</a>' % (document.get_absolute_url(), document))
+    return mark_safe('<a href="%s">%s</a>' % (document.get_absolute_url(), document))
 
 
 def document_html_widget(document, click_view=None, click_view_arguments=None, page=DEFAULT_PAGE_NUMBER, zoom=DEFAULT_ZOOM_LEVEL, rotation=DEFAULT_ROTATION, gallery_name=None, fancybox_class='fancybox', version=None, image_class='lazy-load', title=None, size=THUMBNAIL_SIZE, nolazyload=False, post_load_class=None):
     result = []
 
-    alt_text = _(u'Document page image')
+    alt_text = _('Document page image')
 
     if not version:
         try:
@@ -97,31 +98,31 @@ def document_html_widget(document, click_view=None, click_view_arguments=None, p
     }
 
     if gallery_name:
-        gallery_template = u'rel="%s"' % gallery_name
+        gallery_template = 'rel="%s"' % gallery_name
     else:
-        gallery_template = u''
+        gallery_template = ''
 
     query_string = urlencode(query_dict)
 
-    preview_view = u'%s?%s' % (reverse('document-image', args=[document.pk]), query_string)
+    preview_view = '%s?%s' % (reverse('document-image', args=[document.pk]), query_string)
 
-    result.append(u'<div class="tc" id="document-%d-%d">' % (document.pk, page if page else 1))
+    result.append('<div class="tc" id="document-%d-%d">' % (document.pk, page if page else 1))
 
     if title:
-        title_template = u'title="%s"' % strip_tags(title)
+        title_template = 'title="%s"' % strip_tags(title)
     else:
-        title_template = u''
+        title_template = ''
 
     if click_view:
-        result.append(u'<a %s class="%s" href="%s" %s>' % (gallery_template, fancybox_class, u'%s?%s' % (reverse(click_view, args=click_view_arguments or [document.pk]), query_string), title_template))
+        result.append('<a %s class="%s" href="%s" %s>' % (gallery_template, fancybox_class, '%s?%s' % (reverse(click_view, args=click_view_arguments or [document.pk]), query_string), title_template))
 
     if nolazyload:
-        result.append(u'<img class="img-nolazyload" src="%s" alt="%s" />' % (preview_view, alt_text))
+        result.append('<img class="img-nolazyload" src="%s" alt="%s" />' % (preview_view, alt_text))
     else:
-        result.append(u'<img class="thin_border %s" data-src="%s" data-post-load-class="%s" src="%smain/icons/hourglass.png" alt="%s" />' % (image_class, preview_view, post_load_class, settings.STATIC_URL, alt_text))
+        result.append('<img class="thin_border %s" data-src="%s" data-post-load-class="%s" src="%s" alt="%s" />' % (image_class, preview_view, post_load_class, static('main/icons/hourglass.png'), alt_text))
 
     if click_view:
-        result.append(u'</a>')
-    result.append(u'</div>')
+        result.append('</a>')
+    result.append('</div>')
 
-    return mark_safe(u''.join(result))
+    return mark_safe(''.join(result))

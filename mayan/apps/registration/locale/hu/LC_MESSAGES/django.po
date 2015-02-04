@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:36-0400\n"
-"PO-Revision-Date: 2014-10-08 21:14+0000\n"
+"POT-Creation-Date: 2015-01-27 16:00-0400\n"
+"PO-Revision-Date: 2014-10-25 07:18+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: Hungarian (http://www.transifex.com/projects/p/mayan-edms/"
 "language/hu/)\n"
@@ -77,12 +77,11 @@ msgid "Thank you for registering."
 msgstr "Köszönjük, hogy  regisztrált."
 
 #: views.py:32
-#, fuzzy
 msgid "Registration form"
-msgstr "regisztrációs űrlap"
+msgstr ""
 
 #~ msgid "Error submiting form; %s."
-#~ msgstr "Űrlap hiba: %s"
+#~ msgstr "Error submiting form; %s."
 
 #~ msgid "Unregistered"
-#~ msgstr "Nem regisztrált"
+#~ msgstr "Unregistered"

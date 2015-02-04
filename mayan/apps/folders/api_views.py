@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -14,11 +14,11 @@ from rest_api.filters import MayanObjectPermissionsFilter
 from rest_api.permissions import MayanPermission
 
 from .models import Folder
-from .permissions import (PERMISSION_FOLDER_ADD_DOCUMENT,
-                          PERMISSION_FOLDER_CREATE, PERMISSION_FOLDER_DELETE,
-                          PERMISSION_FOLDER_EDIT,
-                          PERMISSION_FOLDER_REMOVE_DOCUMENT,
-                          PERMISSION_FOLDER_VIEW)
+from .permissions import (
+    PERMISSION_FOLDER_ADD_DOCUMENT, PERMISSION_FOLDER_CREATE,
+    PERMISSION_FOLDER_DELETE, PERMISSION_FOLDER_EDIT,
+    PERMISSION_FOLDER_REMOVE_DOCUMENT, PERMISSION_FOLDER_VIEW
+)
 from .serializers import FolderSerializer
 
 
@@ -123,7 +123,8 @@ class APIDocumentFolderListView(generics.ListAPIView):
 
 
 class APIFolderDocumentView(views.APIView):
-    def delete(self, request):
+
+    def delete(self, request, *args, **kwargs):
         """Remove a document from the selected folder."""
 
         folder = get_object_or_404(Folder, pk=self.kwargs['pk'])

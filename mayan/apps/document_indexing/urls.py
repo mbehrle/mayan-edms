@@ -1,9 +1,12 @@
+from __future__ import unicode_literals
+
 from django.conf.urls import patterns, url
 
-from .api_views import (APIDocumentIndexListView,
-                        APIIndexListView, APIIndexNodeInstanceDocumentListView,
-                        APIIndexTemplateListView, APIIndexTemplateView,
-                        APIIndexView)
+from .api_views import (
+    APIDocumentIndexListView, APIIndexListView,
+    APIIndexNodeInstanceDocumentListView, APIIndexTemplateListView,
+    APIIndexTemplateView, APIIndexView
+)
 
 
 urlpatterns = patterns('document_indexing.views',

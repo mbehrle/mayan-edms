@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import logging
 import os
@@ -14,9 +14,11 @@ import gnupg
 
 from django.utils.translation import ugettext_lazy as _
 
-from .exceptions import (GPGVerificationError, GPGSigningError,
-                         GPGDecryptionError, KeyDeleteError, KeyGenerationError,
-                         KeyFetchingError, KeyDoesNotExist, KeyImportError)
+from .exceptions import (
+    GPGException, GPGVerificationError, GPGSigningError, GPGDecryptionError,
+    KeyDeleteError, KeyGenerationError, KeyFetchingError, KeyDoesNotExist,
+    KeyImportError
+)
 from .literals import KEY_TYPES
 
 logger = logging.getLogger(__name__)
@@ -34,7 +36,7 @@ class Key(object):
         if exclude:
             excluded_id = exclude.key_id
         else:
-            excluded_id = u''
+            excluded_id = ''
         for key in keys:
             if not key['keyid'] in excluded_id:
                 key_instance = Key(
@@ -86,10 +88,10 @@ class Key(object):
 
     @property
     def user_ids(self):
-        return u', '.join(self.uids)
+        return ', '.join(self.uids)
 
     def __str__(self):
-        return '%s "%s" (%s)' % (self.key_id, self.user_ids, KEY_TYPES.get(self.type, _(u'Unknown')))
+        return '%s "%s" (%s)' % (self.key_id, self.user_ids, KEY_TYPES.get(self.type, _('Unknown')))
 
     def __unicode__(self):
         return unicode(self.__str__())
@@ -123,7 +125,10 @@ class GPG(object):
 
         self.keyservers = keyservers
 
-        self.gpg = gnupg.GPG(**kwargs)
+        try:
+            self.gpg = gnupg.GPG(**kwargs)
+        except Exception as exception:
+            raise GPGException('ERROR: GPG initialization error; %s' % exception)
 
     def verify_file(self, file_input, detached_signature=None, fetch_key=False):
         """
@@ -236,7 +241,7 @@ class GPG(object):
         return result
 
     def create_key(self, *args, **kwargs):
-        if kwargs.get('passphrase') == u'':
+        if kwargs.get('passphrase') == '':
             kwargs.pop('passphrase')
 
         input_data = self.gpg.gen_key_input(**kwargs)
@@ -265,7 +270,7 @@ class GPG(object):
     def query(self, term):
         results = {}
         for keyserver in self.keyservers:
-            url = u'http://%s' % keyserver
+            url = 'http://%s' % keyserver
             server = KeyServer(url)
             try:
                 key_list = server.search(term)

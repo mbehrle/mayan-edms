@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:33-0400\n"
-"PO-Revision-Date: 2014-09-23 08:32+0000\n"
-"Last-Translator: Ford Guo <agile.guo@gmail.com>\n"
+"POT-Creation-Date: 2015-01-27 15:57-0400\n"
+"PO-Revision-Date: 2014-10-25 07:18+0000\n"
+"Last-Translator: Roberto Rosario\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/zh_CN/)\n"
 "Language: zh_CN\n"
@@ -20,32 +20,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: __init__.py:32
+#: __init__.py:35
 msgid "Date"
 msgstr ""
 
-#: __init__.py:36
+#: __init__.py:39
 msgid "User"
 msgstr ""
 
-#: __init__.py:40
-#, fuzzy
+#: __init__.py:43
 msgid "Comment"
-msgstr "评论"
+msgstr ""
 
-#: links.py:8 links.py:9
-#, fuzzy
-msgid "Delete"
-msgstr "删除"
-
-#: links.py:10
-#, fuzzy
-msgid "Add comment"
-msgstr "添加评论"
-
-#: links.py:11 permissions.py:7
+#: __init__.py:52 links.py:13 permissions.py:7
 msgid "Comments"
 msgstr "评论"
+
+#: links.py:10 links.py:11
+msgid "Delete"
+msgstr ""
+
+#: links.py:12
+msgid "Add comment"
+msgstr ""
 
 #: permissions.py:9
 msgid "Create new comments"
@@ -59,55 +56,55 @@ msgstr "删除评论"
 msgid "View comments"
 msgstr "查看评论"
 
-#: views.py:37
+#: views.py:39
 msgid "Must provide at least one comment."
 msgstr "至少要提供一个评论"
 
-#: views.py:47
+#: views.py:49
 #, python-format
 msgid "Comment \"%s\" deleted successfully."
 msgstr "评论\"%s\" 删除成功"
 
-#: views.py:49
+#: views.py:51
 #, python-format
 msgid "Error deleting comment \"%(comment)s\": %(error)s"
 msgstr "删除评论 \"%(comment)s\" 出错：%(error)s"
 
-#: views.py:62
+#: views.py:64
 #, python-format
 msgid "Are you sure you wish to delete the comment: %s?"
 msgstr "确定要删除评论： %s么？"
 
-#: views.py:64
+#: views.py:66
 #, python-format
 msgid "Are you sure you wish to delete the comments: %s?"
 msgstr "确定要删除评论： %s么？"
 
-#: views.py:98
+#: views.py:100
 msgid "Comment added successfully."
 msgstr "添加评论成功"
 
-#: views.py:105
+#: views.py:107
 #, python-format
 msgid "Add comment to document: %s"
 msgstr "添加评论到文档：%s"
 
-#: views.py:125
-#, fuzzy, python-format
+#: views.py:127
+#, python-format
 msgid "Comments for document: %s"
-msgstr "添加评论到文档：%s"
+msgstr ""
 
 #~ msgid "date"
-#~ msgstr "日期"
+#~ msgstr "date"
 
 #~ msgid "user"
-#~ msgstr "用户"
+#~ msgstr "user"
 
 #~ msgid "comment"
-#~ msgstr "评论"
+#~ msgstr "comment"
 
 #~ msgid "comments"
-#~ msgstr "评论"
+#~ msgstr "comments"
 
 #~ msgid "comments: %s"
-#~ msgstr "评论：%s"
+#~ msgstr "comments: %s"

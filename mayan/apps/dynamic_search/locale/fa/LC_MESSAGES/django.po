@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:33-0400\n"
-"PO-Revision-Date: 2014-10-08 21:13+0000\n"
+"POT-Creation-Date: 2015-01-27 15:58-0400\n"
+"PO-Revision-Date: 2015-01-11 22:05+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: Persian (http://www.transifex.com/projects/p/mayan-edms/"
 "language/fa/)\n"
@@ -20,54 +20,46 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: __init__.py:18
-msgid "Returns a list of all recent searches."
-msgstr ""
-
-#: __init__.py:19
-msgid "Perform a search operaton."
-msgstr ""
-
 #: forms.py:8
 msgid "Search terms"
 msgstr "عبارات جستجو"
 
-#: links.py:3 links.py:6 views.py:84 views.py:90 views.py:92
-#: templatetags/search_tags.py:19 templatetags/search_tags.py:20
+#: links.py:5 views.py:66 views.py:72 views.py:74
+#: templatetags/search_tags.py:20 templatetags/search_tags.py:21
 msgid "Search"
 msgstr "جستجو"
 
-#: links.py:4 views.py:80
+#: links.py:6 views.py:62
 msgid "Advanced search"
-msgstr ""
+msgstr "جستجوی پیشرفته"
 
-#: links.py:5
+#: links.py:7
 msgid "Search again"
-msgstr ""
+msgstr "جستجوی دوباره"
 
-#: models.py:20
+#: models.py:19
 msgid "User"
-msgstr ""
+msgstr "کاربر"
+
+#: models.py:25
+msgid "Query"
+msgstr "پرس و جو"
 
 #: models.py:26
-msgid "Query"
-msgstr ""
+msgid "Datetime created"
+msgstr "تاریخ زمان ایجاد"
 
 #: models.py:27
-msgid "Datetime created"
-msgstr ""
-
-#: models.py:28
 msgid "Hits"
-msgstr ""
+msgstr "برخورد"
 
 #: models.py:64
 msgid "Recent search"
-msgstr ""
+msgstr "جستجوی اخیر"
 
 #: models.py:65
 msgid "Recent searches"
-msgstr ""
+msgstr "جستجوهای اخیر"
 
 #: settings.py:12
 msgid "Maximum amount search hits to fetch and display."
@@ -77,20 +69,19 @@ msgstr "جداکثر نتایج قابل نمایش"
 msgid "Maximum number of search queries to remember per user."
 msgstr "حداکثر تعداد پرس و جو های هرکاربر که بوسیله سیستم نگهداری میشود."
 
-#: views.py:56
-#, fuzzy
+#: views.py:38
 msgid "Results"
-msgstr "نتایج"
+msgstr "حاصل"
 
-#: views.py:66
+#: views.py:46
 msgid "Type"
-msgstr ""
+msgstr "نوع"
 
-#: templates/search_results.html:3
+#: templates/dynamic_search/search_results.html:3
 msgid "Search results"
 msgstr "نتایج جستجو"
 
-#: templates/search_results.html:19
+#: templates/dynamic_search/search_results.html:19
 #, python-format
 msgid "Elapsed time: %(time_delta)s seconds"
 msgstr "مدت زمان گذشته به ثانیه: %(time_delta)s"
@@ -98,7 +89,12 @@ msgstr "مدت زمان گذشته به ثانیه: %(time_delta)s"
 #: templatetags/search_tags.py:37
 #, python-format
 msgid "Recent searches (maximum of %d)"
-msgstr ""
+msgstr "جستجوهای اخیر(حداکثر%d)"
+
+#~ msgid ""
+#~ "Results, (showing only %(shown_result_count)s out of %(result_count)s)"
+#~ msgstr ""
+#~ "results, (showing only %(shown_result_count)s out of %(result_count)s)"
 
 #~ msgid "search"
 #~ msgstr "search"

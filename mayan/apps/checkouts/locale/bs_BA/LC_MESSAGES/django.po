@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:32-0400\n"
-"PO-Revision-Date: 2014-10-08 21:13+0000\n"
+"POT-Creation-Date: 2015-01-27 15:56-0400\n"
+"PO-Revision-Date: 2015-01-11 22:05+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: Bosnian (Bosnia and Herzegovina) (http://www.transifex.com/"
 "projects/p/mayan-edms/language/bs_BA/)\n"
@@ -21,76 +21,57 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: events.py:5
+#: events.py:7
 msgid "Document checked out"
 msgstr "Dokument odjavljen"
 
-#: events.py:6
-#, python-format
-msgid "Document \"%(document)s\" checked out by %(fullname)s."
-msgstr "Dokument \"%(document)s\" odjavio/la %(fullname)s."
-
-#: events.py:12
+#: events.py:8
 msgid "Document checked in"
 msgstr "Dokument prijavljen"
 
-#: events.py:13
-#, python-format
-msgid "Document \"%(document)s\" checked in by %(fullname)s."
-msgstr "Dokument \"%(document)s\" prijavio/la %(fullname)s."
-
-#: events.py:19
+#: events.py:9
 msgid "Document automatically checked in"
 msgstr "Dokument je automatski prijavljen"
 
-#: events.py:20
-#, python-format
-msgid "Document \"%(document)s\" automatically checked in."
-msgstr "Dokument \"%(document)s\" je automatski prijavljen."
-
-#: events.py:25
+#: events.py:10
 msgid "Document forcefully checked in"
 msgstr "Dokument je prisilno prijavljen"
 
-#: events.py:26
-#, python-format
-msgid "Document \"%(document)s\" forcefully checked in by %(fullname)s."
-msgstr "Dokument \"%(document)s\" prisilno prijavio/la %(fullname)s."
+#: exceptions.py:18 views.py:82
+msgid "Document already checked out."
+msgstr "Dokument je već odjavljen."
 
-#: links.py:16
+#: links.py:19
 msgid "Checkouts"
 msgstr ""
 
-#: links.py:17
+#: links.py:20
 msgid "Check out document"
 msgstr ""
 
-#: links.py:18
+#: links.py:21
 msgid "Check in document"
 msgstr ""
 
-#: links.py:19
+#: links.py:22
 msgid "Check in/out"
 msgstr ""
 
 #: literals.py:9
-#, fuzzy
 msgid "Checked out"
-msgstr "odjavljeno"
+msgstr ""
 
 #: literals.py:10
-#, fuzzy
 msgid "Checked in/available"
-msgstr "prijavljeno/dostupno"
+msgstr ""
 
 #: models.py:23
 msgid "Document"
 msgstr ""
 
 #: models.py:24
-#, fuzzy
 msgid "Check out date and time"
-msgstr "datum i vrijeme odjave"
+msgstr ""
 
 #: models.py:25 widgets.py:79
 msgid "Check out expiration date and time"
@@ -100,23 +81,21 @@ msgstr "Datum i vrijeme istjecanja odjave"
 msgid "Amount of time to hold the document checked out in minutes."
 msgstr "Vrijeme zadržavanja odjavljenog dokumenta u minutama "
 
-#: models.py:30
-#, fuzzy
+#: models.py:32
 msgid "Block new version upload"
-msgstr "blokirati upload nove verzije"
+msgstr ""
 
-#: models.py:30
+#: models.py:32
 msgid "Do not allow new version of this document to be uploaded."
 msgstr "Ne dozvoliti upload nove verzije ovog dokumenta."
 
-#: models.py:53 permissions.py:7
+#: models.py:58 permissions.py:7
 msgid "Document checkout"
 msgstr "Odjava dokumenta"
 
-#: models.py:54
-#, fuzzy
+#: models.py:59
 msgid "Document checkouts"
-msgstr "Odjava dokumenta"
+msgstr ""
 
 #: permissions.py:9
 msgid "Check out documents"
@@ -135,9 +114,8 @@ msgid "Allow overriding check out restrictions"
 msgstr "Dozvoliti zanemarivanje ograničenja odjavljivanja"
 
 #: views.py:32
-#, fuzzy
 msgid "Documents checked out"
-msgstr "Dokument odjavljen"
+msgstr ""
 
 #: views.py:35
 msgid "Checkout user"
@@ -152,9 +130,9 @@ msgid "Checkout expiration"
 msgstr ""
 
 #: views.py:50
-#, fuzzy, python-format
+#, python-format
 msgid "Document status: %s"
-msgstr "Status dokumenta: %(widget)s %(text)s"
+msgstr ""
 
 #: views.py:54
 #, python-format
@@ -177,9 +155,8 @@ msgid "New versions allowed: %s"
 msgstr "Nove verzije dozvoljene: %s"
 
 #: views.py:57
-#, fuzzy
 msgid "Yes"
-msgstr "da"
+msgstr ""
 
 #: views.py:57
 msgid "No"
@@ -190,40 +167,36 @@ msgstr ""
 msgid "Check out details for document: %s"
 msgstr "Odjavni detalji za dokument: %s"
 
-#: views.py:82
+#: views.py:85
 #, python-format
 msgid "Error trying to check out document; %s"
 msgstr "Greška pokušaja odjave dokumenta; %s"
 
-#: views.py:84
+#: views.py:87
 #, python-format
 msgid "Document \"%s\" checked out successfully."
 msgstr "Dokument \"%s\" uspješno odjavljen."
-
-#: views.py:87
-msgid "Document already checked out."
-msgstr "Dokument je već odjavljen."
 
 #: views.py:95
 #, python-format
 msgid "Check out document: %s"
 msgstr "Odjaviti dokument: %s"
 
-#: views.py:124
+#: views.py:107 views.py:128
 msgid "Document has not been checked out."
 msgstr "Dokument nije odjavljen."
 
-#: views.py:126
+#: views.py:130
 #, python-format
 msgid "Error trying to check in document; %s"
 msgstr "Greška pokušaja prijave dokumenta; %s"
 
-#: views.py:128
+#: views.py:132
 #, python-format
 msgid "Document \"%s\" checked in successfully."
 msgstr "Dokument \"%s\" uspješno prijavljen."
 
-#: views.py:139
+#: views.py:143
 #, python-format
 msgid ""
 "You didn't originally checked out this document.  Are you sure you wish to "
@@ -232,7 +205,7 @@ msgstr ""
 "Vi niste odjavili ovaj dokument. Jeste li sigurni da želite prisilno "
 "prijaviti dokument: %s?"
 
-#: views.py:141
+#: views.py:145
 #, python-format
 msgid "Are you sure you wish to check in document: %s?"
 msgstr "Jeste li sigurni da želite prijaviti dokument: %s?"
@@ -273,23 +246,35 @@ msgstr ""
 "Vremenski period zadržavanja dokumenta u odjavljenom stanju u danima, satima "
 "i/ili minutama."
 
+#~ msgid "Document \"%(document)s\" checked out by %(fullname)s."
+#~ msgstr "Document \"%(document)s\" checked out by %(fullname)s."
+
+#~ msgid "Document \"%(document)s\" checked in by %(fullname)s."
+#~ msgstr "Document \"%(document)s\" checked in by %(fullname)s."
+
+#~ msgid "Document \"%(document)s\" automatically checked in."
+#~ msgstr "Document \"%(document)s\" automatically checked in."
+
+#~ msgid "Document \"%(document)s\" forcefully checked in by %(fullname)s."
+#~ msgstr "Document \"%(document)s\" forcefully checked in by %(fullname)s."
+
 #~ msgid "document"
-#~ msgstr "dokument"
+#~ msgstr "document"
 
 #~ msgid "check out expiration date and time"
-#~ msgstr "datum i vrijeme istjecanja prijave"
+#~ msgstr "check out expiration date and time"
 
 #~ msgid "document checkout"
-#~ msgstr "odjava dokumenta"
+#~ msgstr "document checkout"
 
 #~ msgid "document checkouts"
-#~ msgstr "odjave dokumenta"
+#~ msgstr "document checkouts"
 
 #~ msgid "checked out documents"
-#~ msgstr "odjavljeni dokumenti"
+#~ msgstr "checked out documents"
 
 #~ msgid "no"
-#~ msgstr "ne"
+#~ msgstr "no"
 
 #~ msgid "Check expired check out documents and checks them in."
 #~ msgstr "Check expired check out documents and checks them in."

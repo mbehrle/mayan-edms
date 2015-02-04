@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -8,26 +8,24 @@ from rest_framework.response import Response
 
 from acls.models import AccessEntry
 from documents.models import Document, DocumentType
-from documents.permissions import (PERMISSION_DOCUMENT_TYPE_VIEW,
-                                   PERMISSION_DOCUMENT_TYPE_EDIT)
-
+from documents.permissions import (
+    PERMISSION_DOCUMENT_TYPE_VIEW, PERMISSION_DOCUMENT_TYPE_EDIT
+)
 from permissions.models import Permission
 from rest_api.filters import MayanObjectPermissionsFilter
 from rest_api.permissions import MayanPermission
 
 from .models import DocumentMetadata, MetadataType
-from .permissions import (PERMISSION_METADATA_DOCUMENT_ADD,
-                          PERMISSION_METADATA_DOCUMENT_REMOVE,
-                          PERMISSION_METADATA_DOCUMENT_EDIT,
-                          PERMISSION_METADATA_DOCUMENT_VIEW,
-                          PERMISSION_METADATA_TYPE_CREATE,
-                          PERMISSION_METADATA_TYPE_DELETE,
-                          PERMISSION_METADATA_TYPE_EDIT,
-                          PERMISSION_METADATA_TYPE_VIEW)
-from .serializers import (DocumentMetadataSerializer,
-                          DocumentNewMetadataSerializer,
-                          DocumentTypeNewMetadataTypeSerializer,
-                          MetadataTypeSerializer)
+from .permissions import (
+    PERMISSION_METADATA_DOCUMENT_ADD, PERMISSION_METADATA_DOCUMENT_REMOVE,
+    PERMISSION_METADATA_DOCUMENT_EDIT, PERMISSION_METADATA_DOCUMENT_VIEW,
+    PERMISSION_METADATA_TYPE_CREATE, PERMISSION_METADATA_TYPE_DELETE,
+    PERMISSION_METADATA_TYPE_EDIT, PERMISSION_METADATA_TYPE_VIEW
+)
+from .serializers import (
+    DocumentMetadataSerializer, DocumentTypeNewMetadataTypeSerializer,
+    MetadataTypeSerializer, DocumentTypeMetadataTypeSerializer
+)
 
 
 class APIMetadataTypeListView(generics.ListCreateAPIView):
@@ -79,50 +77,41 @@ class APIMetadataTypeView(generics.RetrieveUpdateDestroyAPIView):
 
 class APIDocumentMetadataListView(generics.ListCreateAPIView):
     permission_classes = (MayanPermission,)
+    serializer_class = DocumentMetadataSerializer
 
-    mayan_view_permissions = {'POST': [PERMISSION_METADATA_DOCUMENT_ADD]}
+    def get_document(self):
+        return get_object_or_404(Document, pk=self.kwargs['document_pk'])
 
     def get_queryset(self):
-        document = get_object_or_404(Document, pk=self.kwargs['document_pk'])
-        try:
-            Permission.objects.check_permissions(self.request.user, [PERMISSION_METADATA_DOCUMENT_VIEW])
-        except PermissionDenied:
-            AccessEntry.objects.check_access(PERMISSION_METADATA_DOCUMENT_VIEW, self.request.user, document)
+        document = self.get_document()
 
-        queryset = document.metadata.all()
-        return queryset
+        if self.request == 'GET':
+            # Make sure the use has the permission to see the metadata for this document
+            try:
+                Permission.objects.check_permissions(self.request.user, [PERMISSION_METADATA_DOCUMENT_VIEW])
+            except PermissionDenied:
+                AccessEntry.objects.check_access(PERMISSION_METADATA_DOCUMENT_VIEW, self.request.user, document)
+            else:
+                return document.metadata.all()
+        elif self.request == 'POST':
+            # Make sure the use has the permission to add metadata to this document
+            try:
+                Permission.objects.check_permissions(self.request.user, [PERMISSION_METADATA_DOCUMENT_ADD])
+            except PermissionDenied:
+                AccessEntry.objects.check_access(PERMISSION_METADATA_DOCUMENT_ADD, self.request.user, document)
+            else:
+                return document.metadata.all()
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return DocumentMetadataSerializer
-        elif self.request.method == 'POST':
-            return DocumentNewMetadataSerializer
+    def pre_save(self, serializer):
+        serializer.document = self.get_document()
 
     def get(self, *args, **kwargs):
         """Returns a list of selected document's metadata types and values."""
         return super(APIDocumentMetadataListView, self).get(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         """Add an existing metadata type and value to the selected document."""
-
-        document = get_object_or_404(Document, pk=self.kwargs['document_pk'])
-        try:
-            Permission.objects.check_permissions(self.request.user, [PERMISSION_METADATA_DOCUMENT_ADD])
-        except PermissionDenied:
-            AccessEntry.objects.check_access(PERMISSION_METADATA_DOCUMENT_ADD, self.request.user, document)
-
-        serializer = self.get_serializer(data=self.request.POST)
-
-        if serializer.is_valid():
-            metadata_type = get_object_or_404(MetadataType, pk=serializer.data['metadata_type_pk'])
-            try:
-                document.metadata.create(metadata_type=metadata_type, value=serializer.data['value'])
-            except Exception as exception:
-                return Response(status=status.HTTP_400_BAD_REQUEST, data={'non_field_errors': unicode(exception)})
-            else:
-                return Response(status=status.HTTP_201_CREATED)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data=serializer.errors)
+        return super(APIDocumentMetadataListView, self).post(*args, **kwargs)
 
 
 class APIDocumentMetadataView(generics.RetrieveUpdateDestroyAPIView):
@@ -163,7 +152,6 @@ class APIDocumentMetadataView(generics.RetrieveUpdateDestroyAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'non_fields_errors': unicode(exception)})
 
 
-
 class APIDocumentTypeMetadataTypeOptionalListView(generics.ListCreateAPIView):
     permission_classes = (MayanPermission,)
 
@@ -178,7 +166,7 @@ class APIDocumentTypeMetadataTypeOptionalListView(generics.ListCreateAPIView):
         except PermissionDenied:
             AccessEntry.objects.check_access(PERMISSION_DOCUMENT_TYPE_VIEW, self.request.user, document_type)
 
-        return document_type.metadata_type.filter(required=self.required_metadata)
+        return document_type.metadata.filter(required=self.required_metadata)
 
     def get(self, *args, **kwargs):
         """Returns a list of selected document type's optional metadata types."""
@@ -186,9 +174,9 @@ class APIDocumentTypeMetadataTypeOptionalListView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return MetadataTypeSerializer
+            return DocumentTypeMetadataTypeSerializer
         elif self.request.method == 'POST':
-            return DocumentTypeNewMetadataType
+            return DocumentTypeNewMetadataTypeSerializer
 
     def post(self, request, *args, **kwargs):
         """

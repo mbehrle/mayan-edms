@@ -1,19 +1,19 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import logging
 
-from django.db import models
 from django.core.exceptions import PermissionDenied
+from django.db import models
 from django.utils.timezone import now
 
 from acls.models import AccessEntry
 from documents.models import Document
-from history.api import create_history
 from permissions.models import Permission
 
-from .events import (HISTORY_DOCUMENT_AUTO_CHECKED_IN,
-                     HISTORY_DOCUMENT_CHECKED_IN,
-                     HISTORY_DOCUMENT_FORCEFUL_CHECK_IN)
+from .events import (
+    event_document_auto_check_in, event_document_check_in,
+    event_document_forceful_check_in
+)
 from .exceptions import DocumentNotCheckedOut
 from .literals import STATE_CHECKED_OUT, STATE_CHECKED_IN
 from .permissions import PERMISSION_DOCUMENT_RESTRICTIONS_OVERRIDE
@@ -48,11 +48,11 @@ class DocumentCheckoutManager(models.Manager):
         else:
             if user:
                 if self.document_checkout_info(document).user_object != user:
-                    create_history(HISTORY_DOCUMENT_FORCEFUL_CHECK_IN, source_object=document, data={'user': user, 'document': document})
+                    event_document_forceful_check_in.commit(actor=user, target=document)
                 else:
-                    create_history(HISTORY_DOCUMENT_CHECKED_IN, source_object=document, data={'user': user, 'document': document})
+                    event_document_check_in.commit(actor=user, target=document)
             else:
-                create_history(HISTORY_DOCUMENT_AUTO_CHECKED_IN, source_object=document, data={'document': document})
+                event_document_auto_check_in.commit(target=document)
 
             document_checkout.delete()
 

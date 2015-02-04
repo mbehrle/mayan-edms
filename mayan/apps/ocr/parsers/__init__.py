@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import logging
 import os
 import slate
@@ -10,8 +12,9 @@ from common.settings import TEMPORARY_DIRECTORY
 from common.utils import copyfile
 from converter import office_converter
 from converter.exceptions import OfficeConversionError
-from converter.office_converter import (CONVERTER_OFFICE_FILE_MIMETYPES,
-                                        OfficeConverter)
+from converter.office_converter import (
+    CONVERTER_OFFICE_FILE_MIMETYPES, OfficeConverter
+)
 
 from ..settings import PDFTOTEXT_PATH
 
@@ -86,11 +89,12 @@ class SlateParser(Parser):
         pdf_pages = slate.PDF(descriptor)
         descriptor.close()
 
-        if pdf_pages[document_page.page_number - 1] == '\x0c':
-            raise ParserError
+        if pdf_pages[document_page.page_number - 1] == b'\x0c':
+            logger.debug('The Slate parser didn\'t return any output')
+            raise ParserError('No output')
 
         document_page.content = pdf_pages[document_page.page_number - 1]
-        document_page.page_label = _(u'Text extracted from PDF')
+        document_page.page_label = _('Text extracted from PDF')
         document_page.save()
 
 
@@ -112,7 +116,7 @@ class OfficeParser(Parser):
 
                 # Now that the office document has been converted to PDF
                 # call the coresponding PDF parser in this new file
-                parse_document_page(document_page, descriptor=open(input_filepath), mimetype=u'application/pdf')
+                parse_document_page(document_page, descriptor=open(input_filepath), mimetype='application/pdf')
             else:
                 raise ParserError
 
@@ -126,7 +130,7 @@ class PopplerParser(Parser):
     PDF parser using the pdftotext execute from the poppler package
     """
     def __init__(self):
-        self.pdftotext_path = PDFTOTEXT_PATH if PDFTOTEXT_PATH else u'/usr/bin/pdftotext'
+        self.pdftotext_path = PDFTOTEXT_PATH if PDFTOTEXT_PATH else '/usr/bin/pdftotext'
         if not os.path.exists(self.pdftotext_path):
             raise ParserError('cannot find pdftotext executable')
         logger.debug('self.pdftotext_path: %s', self.pdftotext_path)
@@ -162,14 +166,14 @@ class PopplerParser(Parser):
             raise ParserError
 
         output = proc.stdout.read()
-        if output == '\x0c':
-            logger.debug('Parser didn\'t any output')
+        if output == b'\x0c':
+            logger.debug('Parser didn\'t return any output')
             raise ParserError('No output')
 
         document_page.content = output
-        document_page.page_label = _(u'Text extracted from PDF')
+        document_page.page_label = _('Text extracted from PDF')
         document_page.save()
 
 
-register_parser(mimetypes=[u'application/pdf'], parsers=[PopplerParser, SlateParser])
+register_parser(mimetypes=['application/pdf'], parsers=[PopplerParser, SlateParser])
 register_parser(mimetypes=office_converter.CONVERTER_OFFICE_FILE_MIMETYPES, parsers=[OfficeParser])

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
@@ -16,7 +15,8 @@ class Migration(DataMigration):
         # NOTE: This migration take a while. Maybe the use of F objects could
         # improve it.
         for document in orm.Document.objects.all():
-            document.label = document.versions.order_by('timestamp').last().filename
+            if document.versions.order_by('timestamp').last():
+                document.label = document.versions.order_by('timestamp').last().filename
             document.save()
 
     def backwards(self, orm):

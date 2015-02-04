@@ -4,13 +4,13 @@
 #
 # Translators:
 # Christophe kryskool <christophe.chauvet@gmail.com>, 2014
-# Pierre Lhoste <peter.cathbad.host@gmail.com>, 2012
+# Pierre Lhoste <inactive+peterhost@transifex.com>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-30 11:37-0400\n"
-"PO-Revision-Date: 2014-10-08 21:14+0000\n"
+"POT-Creation-Date: 2015-01-27 16:00-0400\n"
+"PO-Revision-Date: 2014-10-25 07:18+0000\n"
 "Last-Translator: Roberto Rosario\n"
 "Language-Team: French (http://www.transifex.com/projects/p/mayan-edms/"
 "language/fr/)\n"
@@ -21,19 +21,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: links.py:10
-#, fuzzy
 msgid "Execute"
-msgstr "exécuter"
+msgstr ""
 
 #: links.py:11
-#, fuzzy
 msgid "Details"
-msgstr "détails"
+msgstr ""
 
 #: links.py:12
-#, fuzzy
 msgid "Namespace list"
-msgstr "liste des espaces de nommage"
+msgstr ""
 
 #: links.py:13
 msgid "Statistics"
@@ -49,23 +46,14 @@ msgid "Namespace details for: %s"
 msgstr ""
 
 #: views.py:48
-#, fuzzy
 msgid "Namespace"
-msgstr "espace de nommage"
+msgstr ""
 
 #: views.py:49
-#, fuzzy
 msgid "Statistic"
-msgstr "Statistiques"
+msgstr ""
 
 #: views.py:53
 #, python-format
 msgid "Results for: %s"
 msgstr ""
-
-#~ msgid "Central place to store and display app statistics."
-#~ msgstr ""
-#~ "Point central pour stocker et afficher les statistiques de l'application."
-
-#~ msgid "statistic"
-#~ msgstr "statistique"

@@ -1,25 +1,21 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 from datetime import timedelta
 
 from acls.api import class_permissions
 from documents.models import Document
 from mayan.celery import app
-from history.api import register_history_type
 from navigation.api import register_links, register_top_menu
 from rest_api.classes import APIEndPoint
 
-from .events import (HISTORY_DOCUMENT_AUTO_CHECKED_IN,
-                     HISTORY_DOCUMENT_CHECKED_OUT,
-                     HISTORY_DOCUMENT_CHECKED_IN,
-                     HISTORY_DOCUMENT_FORCEFUL_CHECK_IN)
-from .links import (checkin_document, checkout_document, checkout_info,
-                    checkout_list)
+from .links import (
+    checkin_document, checkout_document, checkout_info, checkout_list
+)
 from .models import DocumentCheckout
-from .permissions import (PERMISSION_DOCUMENT_CHECKIN,
-                          PERMISSION_DOCUMENT_CHECKIN_OVERRIDE,
-                          PERMISSION_DOCUMENT_CHECKOUT,
-                          PERMISSION_DOCUMENT_RESTRICTIONS_OVERRIDE)
+from .permissions import (
+    PERMISSION_DOCUMENT_CHECKIN, PERMISSION_DOCUMENT_CHECKIN_OVERRIDE,
+    PERMISSION_DOCUMENT_CHECKOUT, PERMISSION_DOCUMENT_RESTRICTIONS_OVERRIDE
+)
 
 CHECK_EXPIRED_CHECK_OUTS_INTERVAL = 60  # Lowest check out expiration allowed
 
@@ -48,10 +44,6 @@ class_permissions(Document, [
 ])
 
 initialize_document_checkout_extra_methods()
-register_history_type(HISTORY_DOCUMENT_CHECKED_OUT)
-register_history_type(HISTORY_DOCUMENT_CHECKED_IN)
-register_history_type(HISTORY_DOCUMENT_AUTO_CHECKED_IN)
-register_history_type(HISTORY_DOCUMENT_FORCEFUL_CHECK_IN)
 
 register_links(Document, [checkout_info], menu_name='form_header')
 register_links(['checkouts:checkout_info', 'checkouts:checkout_document', 'checkouts:checkin_document'], [checkout_document, checkin_document], menu_name="sidebar")

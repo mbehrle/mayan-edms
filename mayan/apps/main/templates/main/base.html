@@ -214,28 +214,13 @@
                         </div>
                         <div id="user-navigation">
                             <ul class="wat-cf">
-                                <li><strong>{% trans 'User' %}: </strong>
+                                <li>
                                     {% if not user.is_authenticated %}
                                         {% trans 'Anonymous' %}
                                     {% else %}
                                         <a href="{% url 'common:current_user_details' %}" title="{% trans 'User details' %}">{{ user.get_full_name|default:user }} <span class="famfam active famfam-vcard"></span></a>
                                     {% endif %}
                                 </li>
-
-                                {% get_setting "MIDDLEWARE_CLASSES" as middleware_classes %}
-                                {% if 'django.middleware.locale.LocaleMiddleware' in middleware_classes %}
-                                    <li>
-                                        <form action="{% url 'common:set_language' %}" method="post">{% csrf_token %}
-                                            <select name="language" onchange="this.form.submit()">
-                                                {% for lang in LANGUAGES %}
-                                                    <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %}selected="selected"{% endif %}>{{ lang.0|language_name_local }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </form>
-                                    </li>
-                                {% endif %}
-                                {% get_setting "LOGIN_URL" as login_url %}
-                                <li><a class="logout" href="{% if not user.is_authenticated %}{% url 'common:login_view' %}?next=/{% else %}{% url 'common:logout_view' %}{% endif %}">{% if not user.is_authenticated %}{% trans 'Login' %}{% else %}{% trans 'Logout' %}{% endif %}</a></li>
                             </ul>
                         </div>
                     </div>
@@ -359,17 +344,6 @@
                                         </ul>
                                     </div>
                                 {% endif %}
-                                {% get_object_navigation_links "related" as object_navigation_links %}
-                                    {% if object_navigation_links %}
-                                    <div class="block">
-                                        <h3>{% trans "Related actions" %}</h3>
-                                        <ul class="navigation">
-                                            {% with 'true' as as_li %}
-                                                {% include 'generic_navigation.html' %}
-                                            {% endwith %}
-                                        </ul>
-                                    </div>
-                                {% endif %}
                                 {% get_object_navigation_links "sidebar" as object_navigation_links %}
                                 {% if object_navigation_links %}
                                 <div class="block">
@@ -398,10 +372,10 @@
                                     </ul>
                                 </div>
                             {% endif %}
-                            {% get_object_navigation_links "related" as object_navigation_links %}
+                            {% get_object_navigation_links "sidebar" as object_navigation_links %}
                                 {% if object_navigation_links %}
                                 <div class="block">
-                                    <h3>{% trans 'Related actions' %}</h3>
+                                    <h3>{% trans "Other available actions" %}</h3>
                                     <ul class="navigation">
                                         {% with 'true' as as_li %}
                                             {% include 'generic_navigation.html' %}
@@ -409,18 +383,6 @@
                                     </ul>
                                 </div>
                             {% endif %}
-                        {% endif %}
-
-                        {% get_object_navigation_links "sidebar" as object_navigation_links %}
-                            {% if object_navigation_links %}
-                            <div class="block">
-                                <h3>{% trans "Other available actions" %}</h3>
-                                <ul class="navigation">
-                                    {% with 'true' as as_li %}
-                                        {% include 'generic_navigation.html' %}
-                                    {% endwith %}
-                                </ul>
-                            </div>
                         {% endif %}
 
                         {% block sidebar %}{% endblock %}
@@ -447,10 +409,11 @@
                     });
                 });
                 $('.scrollable').scrollview();
-                $('.full-height').height($(window).height() - 230);
+                $('.full-height').height($(window).height() - $('.full-height').data('heightDifference'));
                 $(window).resize(function() {
-                    $('.full-height').height($(window).height() - 230);
+                    $('.full-height').height($(window).height() - $('.full-height').data('heightDifference'));
                 });
+
                 $('.no-parent-history', this).click(function() {
                     location.replace(this.href);
                     return false;

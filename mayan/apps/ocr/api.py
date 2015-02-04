@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import logging
 import os
@@ -14,8 +14,9 @@ from converter.api import convert
 from documents.models import DocumentPage
 
 from .exceptions import UnpaperError
-from .literals import (DEFAULT_OCR_FILE_EXTENSION, DEFAULT_OCR_FILE_FORMAT,
-                       UNPAPER_FILE_FORMAT)
+from .literals import (
+    DEFAULT_OCR_FILE_EXTENSION, DEFAULT_OCR_FILE_FORMAT, UNPAPER_FILE_FORMAT
+)
 from .parsers import parse_document_page
 from .parsers.exceptions import ParserError, ParserUnknownFile
 from .runtime import ocr_backend
@@ -30,14 +31,14 @@ except sh.CommandNotFound:
     UNPAPER = None
 
 
-def do_document_ocr(document):
+def do_document_ocr(document_version):
     """
     Try first to extract text from document pages using the registered
     parser, if the parser fails or if there is no parser registered for
     the document mimetype do a visual OCR by calling the corresponding
     OCR backend
     """
-    for document_page in document.pages.all():
+    for document_page in document_version.pages.all():
         try:
             # Try to extract text by means of a parser
             parse_document_page(document_page)
@@ -68,10 +69,10 @@ def do_document_ocr(document):
 
             os.rename(pre_ocr_filepath, pre_ocr_filepath_w_ext)
             try:
-                ocr_text = ocr_backend.execute(pre_ocr_filepath_w_ext, document.language)
+                ocr_text = ocr_backend.execute(pre_ocr_filepath_w_ext, document_version.document.language)
 
-                document_page.content = ocr_cleanup(document.language, ocr_text)
-                document_page.page_label = _(u'Text from OCR')
+                document_page.content = ocr_cleanup(document_version.document.language, ocr_text)
+                document_page.page_label = _('Text from OCR')
                 document_page.save()
             finally:
                 fs_cleanup(pre_ocr_filepath_w_ext)
@@ -86,7 +87,7 @@ def ocr_cleanup(language, text):
     cleanup filter
     """
     try:
-        language_backend = load_backend(u'.'.join([u'ocr', u'lang', language, u'LanguageBackend']))()
+        language_backend = load_backend('.'.join(['ocr', 'lang', language, 'LanguageBackend']))()
     except ImportError:
         language_backend = None
 
@@ -104,9 +105,9 @@ def ocr_cleanup(language, text):
                 result = word
             if result:
                 output.append(result)
-        output.append(u'\n')
+        output.append('\n')
 
-    return u' '.join(output)
+    return ' '.join(output)
 
 
 def clean_pages():

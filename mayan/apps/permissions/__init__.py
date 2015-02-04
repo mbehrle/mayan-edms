@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,10 +8,11 @@ from navigation.api import register_links
 from project_setup.api import register_setup
 from rest_api.classes import APIEndPoint
 
-from .models import Role
-from .links import (permission_grant, permission_revoke, role_create,
-                    role_delete, role_edit, role_list, role_members,
-                    role_permissions)
+from .models import Permission, Role
+from .links import (
+    permission_grant, permission_revoke, role_create, role_delete, role_edit,
+    role_list, role_members, role_permissions
+)
 from .settings import DEFAULT_ROLES
 
 register_links(Role, [role_edit, role_members, role_permissions, role_delete])

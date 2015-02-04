@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import logging
 
@@ -14,22 +14,24 @@ from documents.signals import post_document_type_change
 from navigation.api import register_links, register_model_list_columns
 from navigation.links import link_spacer
 from project_setup.api import register_setup
+from project_tools.api import register_tool
 from rest_api.classes import APIEndPoint
 
 from .api import get_metadata_string
 from .classes import DocumentMetadataHelper
-from .links import (metadata_add, metadata_edit, metadata_multiple_add,
-                    metadata_multiple_edit, metadata_multiple_remove,
-                    metadata_remove, metadata_view,
-                    setup_document_type_metadata,
-                    setup_document_type_metadata_required,
-                    setup_metadata_type_create, setup_metadata_type_delete,
-                    setup_metadata_type_edit, setup_metadata_type_list)
+from .links import (
+    metadata_add, metadata_edit, metadata_multiple_add, metadata_multiple_edit,
+    metadata_multiple_remove, metadata_remove, metadata_view,
+    setup_document_type_metadata, setup_document_type_metadata_required,
+    setup_metadata_type_create, setup_metadata_type_delete,
+    setup_metadata_type_edit, setup_metadata_type_list,
+    link_documents_missing_required_metadata
+)
 from .models import DocumentMetadata, DocumentTypeMetadataType, MetadataType
-from .permissions import (PERMISSION_METADATA_DOCUMENT_ADD,
-                          PERMISSION_METADATA_DOCUMENT_EDIT,
-                          PERMISSION_METADATA_DOCUMENT_REMOVE,
-                          PERMISSION_METADATA_DOCUMENT_VIEW)
+from .permissions import (
+    PERMISSION_METADATA_DOCUMENT_ADD, PERMISSION_METADATA_DOCUMENT_EDIT,
+    PERMISSION_METADATA_DOCUMENT_REMOVE, PERMISSION_METADATA_DOCUMENT_VIEW
+)
 from .tasks import task_add_required_metadata_type, task_remove_metadata_type
 
 logger = logging.getLogger(__name__)
@@ -72,6 +74,7 @@ register_links(MetadataType, [setup_metadata_type_edit, setup_metadata_type_dele
 register_links([MetadataType, 'metadata:setup_metadata_type_list', 'metadata:setup_metadata_type_create'], [setup_metadata_type_list, setup_metadata_type_create], menu_name='secondary_menu')
 
 register_setup(setup_metadata_type_list)
+register_tool(link_documents_missing_required_metadata)
 
 class_permissions(Document, [
     PERMISSION_METADATA_DOCUMENT_ADD, PERMISSION_METADATA_DOCUMENT_EDIT,
@@ -80,7 +83,7 @@ class_permissions(Document, [
 
 register_model_list_columns(Document, [
     {
-        'name': _(u'Metadata'), 'attribute': encapsulate(lambda x: get_metadata_string(x))
+        'name': _('Metadata'), 'attribute': encapsulate(lambda x: get_metadata_string(x))
     },
 ])
 
