@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-27 16:00-0400\n"
-"PO-Revision-Date: 2014-10-25 07:18+0000\n"
-"Last-Translator: Roberto Rosario\n"
+"PO-Revision-Date: 2015-02-06 02:58+0100\n"
+"Last-Translator: Mathias Behrle <mbehrle@m9s.biz>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/de_DE/)\n"
 "Language: de_DE\n"
@@ -20,6 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #: forms.py:13
 msgid "Your name:"
@@ -55,11 +56,11 @@ msgstr "Registrierung"
 
 #: models.py:22
 msgid "Registered"
-msgstr ""
+msgstr "Registriert"
 
 #: models.py:23
 msgid "Registration data"
-msgstr ""
+msgstr "Registrierungsdaten"
 
 #: models.py:49
 msgid "No name"
@@ -67,7 +68,7 @@ msgstr "Kein Name"
 
 #: models.py:86
 msgid "Registration properties"
-msgstr ""
+msgstr "Registrierungseigenschaften"
 
 #: views.py:19
 msgid "Your copy is already registered."
@@ -75,11 +76,11 @@ msgstr "Ihre Kopie ist schon registriert."
 
 #: views.py:26
 msgid "Thank you for registering."
-msgstr "Danke für die Registrierung."
+msgstr "Danke für die Registrierung!"
 
 #: views.py:32
 msgid "Registration form"
-msgstr ""
+msgstr "Registrierungsformular"
 
 #~ msgid "Error submiting form; %s."
 #~ msgstr "Error submiting form; %s."

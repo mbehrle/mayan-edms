@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-27 16:00-0400\n"
-"PO-Revision-Date: 2014-10-08 21:14+0000\n"
-"Last-Translator: Roberto Rosario\n"
+"PO-Revision-Date: 2015-02-06 02:54+0100\n"
+"Last-Translator: Mathias Behrle <mbehrle@m9s.biz>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/de_DE/)\n"
 "Language: de_DE\n"
@@ -21,6 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #: links.py:11 widgets.py:25
 msgid "Grant"
@@ -32,43 +33,43 @@ msgstr "Widerrufen"
 
 #: links.py:14
 msgid "Create new role"
-msgstr ""
+msgstr "Erstellen"
 
 #: links.py:15
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 #: links.py:16
 msgid "Edit"
-msgstr ""
+msgstr "Bearbeiten"
 
 #: links.py:17 models.py:218 views.py:59
 msgid "Roles"
-msgstr ""
+msgstr "Rollen"
 
 #: links.py:18
 msgid "Members"
-msgstr ""
+msgstr "Mitglieder"
 
 #: links.py:19
 msgid "Role permissions"
-msgstr ""
+msgstr "Berechtigungen"
 
 #: models.py:51
 msgid "Insufficient permissions."
-msgstr "Unzureichende Berechtigungen."
+msgstr "Unzureichende Berechtigungen"
 
 #: models.py:126 views.py:80
 msgid "Namespace"
-msgstr ""
+msgstr "Namensraum"
 
 #: models.py:127 views.py:81
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: models.py:134 models.py:196 views.py:134
 msgid "Permission"
-msgstr ""
+msgstr "Berechtigung"
 
 #: models.py:135 permissions.py:7 views.py:77 views.py:136
 msgid "Permissions"
@@ -76,27 +77,27 @@ msgstr "Berechtigungen"
 
 #: models.py:204
 msgid "Permission holder"
-msgstr ""
+msgstr "Berechtigter"
 
 #: models.py:205
 msgid "Permission holders"
-msgstr ""
+msgstr "Berechtigte"
 
 #: models.py:213
 msgid "Label"
-msgstr ""
+msgstr "Bezeichnung"
 
 #: models.py:217 models.py:248
 msgid "Role"
-msgstr ""
+msgstr "Rolle"
 
 #: models.py:264
 msgid "Role member"
-msgstr ""
+msgstr "Rollenmitglied"
 
 #: models.py:265
 msgid "Role members"
-msgstr ""
+msgstr "Rollenmitglieder"
 
 #: permissions.py:9
 msgid "View roles"
@@ -132,7 +133,7 @@ msgstr ""
 
 #: views.py:83
 msgid "Has permission"
-msgstr ""
+msgstr "Berechtigt"
 
 #: views.py:131 views.py:191
 msgid " and "
@@ -202,12 +203,12 @@ msgstr "Spezial"
 #: views.py:304
 #, python-format
 msgid "Non members of role: %s"
-msgstr ""
+msgstr "Nichtmitglieder von Rolle %s"
 
 #: views.py:305
 #, python-format
 msgid "Members of role: %s"
-msgstr ""
+msgstr "Mitglieder von Rolle %s"
 
 #~ msgid "edit"
 #~ msgstr "edit"

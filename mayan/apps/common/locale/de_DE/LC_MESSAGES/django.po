@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-27 15:57-0400\n"
-"PO-Revision-Date: 2015-02-05 00:37+0100\n"
+"PO-Revision-Date: 2015-02-06 02:13+0100\n"
 "Last-Translator: Mathias Behrle <mbehrle@m9s.biz>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/de_DE/)\n"
@@ -207,11 +207,11 @@ msgstr "Aktuelle Benutzerlokalisierungsdetails"
 
 #: views.py:204
 msgid "E-mail conflict, another user has that same email."
-msgstr "E-Mail-Konflikt: Diese E-Mailadresse wird bereits im System verwendet."
+msgstr "E-Mail-Konflikt: Diese E-Mailadresse wird bereits im System verwendet"
 
 #: views.py:207
 msgid "Current user's details updated."
-msgstr "Details des aktuellen Benutzers aktualisiert."
+msgstr "Details des aktuellen Benutzers aktualisiert"
 
 #: views.py:216
 msgid "Edit current user details"
@@ -231,61 +231,61 @@ msgstr "Passwort des aktuellen Benutzers ändern"
 
 #: views.py:303
 msgid "Your password has been successfully changed."
-msgstr "Das Passwort wurde erfolgreich geändert."
+msgstr "Das Passwort wurde erfolgreich geändert"
 
 #: views.py:314
 #, python-format
 msgid "Error saving %s details."
-msgstr "Fehler bei der Speicherung von %s Details."
+msgstr "Fehler bei der Speicherung von %s Details"
 
 #: views.py:316
 msgid "Error saving details."
-msgstr "Fehler bei der Speicherung von Details."
+msgstr "Fehler bei der Speicherung von Details"
 
 #: views.py:324
 #, python-format
 msgid "%s details saved successfully."
-msgstr "%s Details erfolgreich gespeichert."
+msgstr "%s Details erfolgreich gespeichert"
 
 #: views.py:326
 msgid "Details saved successfully."
-msgstr "Details erfolgreich gespeichert."
+msgstr "Details erfolgreich gespeichert"
 
 #: views.py:338
 #, python-format
 msgid "Error creating new %s."
-msgstr "Fehler bei der Erstellung von neuem %s."
+msgstr "Fehler bei der Erstellung von neuem %s"
 
 #: views.py:340
 msgid "Error creating object."
-msgstr "Fehler bei der Erstellung des Objekts."
+msgstr "Fehler bei der Erstellung des Objekts"
 
 #: views.py:347
 #, python-format
 msgid "%s created successfully."
-msgstr "%s erfolgreich erstellt."
+msgstr "%s erfolgreich erstellt"
 
 #: views.py:349
 msgid "New object created successfully."
-msgstr "Neues Objekt erfolgreich erstellt."
+msgstr "Neues Objekt erfolgreich erstellt"
 
 #: views.py:367
 #, python-format
 msgid "Error deleting %s."
-msgstr "Fehler beim Löschen von %s."
+msgstr "Fehler beim Löschen von %s"
 
 #: views.py:369
 msgid "Error deleting object."
-msgstr "Fehler beim Löschen des Objekts."
+msgstr "Fehler beim Löschen des Objekts"
 
 #: views.py:374
 #, python-format
 msgid "%s deleted successfully."
-msgstr "%s erfolgreich gelöscht."
+msgstr "%s erfolgreich gelöscht"
 
 #: views.py:376
 msgid "Object deleted successfully."
-msgstr "Objekt erfolgreich gelöscht."
+msgstr "Objekt erfolgreich gelöscht"
 
 #: widgets.py:60
 msgid "None"

@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-10-30 11:34-0400\n"
-"PO-Revision-Date: 2014-10-08 21:13+0000\n"
-"Last-Translator: Roberto Rosario\n"
+"PO-Revision-Date: 2015-02-06 00:14+0100\n"
+"Last-Translator: Mathias Behrle <mbehrle@m9s.biz>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/de_DE/)\n"
 "Language: de_DE\n"
@@ -23,18 +23,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #: __init__.py:17
 msgid "Date and time"
-msgstr ""
+msgstr "Datum und Zeit"
 
 #: __init__.py:21
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: __init__.py:25
 msgid "Summary"
-msgstr ""
+msgstr "Zusammenfassung"
 
 #: links.py:7 models.py:71 permissions.py:7
 msgid "History"
@@ -42,52 +43,52 @@ msgstr "Verlauf"
 
 #: links.py:8
 msgid "Details"
-msgstr ""
+msgstr "Details"
 
 #: models.py:17
 msgid "Namespace"
-msgstr ""
+msgstr "Namensraum"
 
 #: models.py:18
 msgid "Name"
-msgstr ""
+msgstr "Name"
 
 #: models.py:32 models.py:41
 msgid "History type"
-msgstr ""
+msgstr "Verlaufstyp"
 
 #: models.py:33
 msgid "History types"
-msgstr ""
+msgstr "Verlaufstypen"
 
 #: models.py:37
 msgid "Date time"
-msgstr ""
+msgstr "Zeit"
 
 #: models.py:42
 msgid "Dictionary"
-msgstr ""
+msgstr "Dictionary"
 
 #: models.py:72
 msgid "Histories"
-msgstr ""
+msgstr "Verläufe"
 
 #: permissions.py:8
 msgid "Access the history of an object"
-msgstr "Zugriff auf den Verlauf eine Objekts"
+msgstr "Zugriff auf den Verlauf eines Objekts"
 
 #: views.py:36
 msgid "History events"
-msgstr ""
+msgstr "Verlaufsereignisse"
 
 #: views.py:39
 msgid "Object link"
-msgstr ""
+msgstr "Objektverknüpfung"
 
 #: views.py:67
 #, python-format
 msgid "History events for: %s"
-msgstr ""
+msgstr "Verlaufsereignisse für %s"
 
 #: views.py:85
 msgid "Date"
@@ -111,17 +112,17 @@ msgstr "Zusätzliche Details"
 
 #: views.py:89
 msgid "None"
-msgstr "Keine"
+msgstr "Kein(e)"
 
 #: views.py:93
 #, python-format
 msgid "Details for: %s"
-msgstr ""
+msgstr "Details für %s"
 
 #: views.py:104
 #, python-format
 msgid "History events of type: %s"
-msgstr ""
+msgstr "Ereignisse des Typs %s"
 
 #~ msgid "type"
 #~ msgstr "type"
