@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-27 15:56-0400\n"
-"PO-Revision-Date: 2015-02-06 00:26+0100\n"
+"PO-Revision-Date: 2015-02-07 00:23+0100\n"
 "Last-Translator: Mathias Behrle <mbehrle@m9s.biz>\n"
 "Language-Team: German (Switzerland) (http://www.transifex.com/projects/p/"
 "mayan-edms/language/de_CH/)\n"
@@ -70,7 +70,7 @@ msgstr "Dokument"
 
 #: models.py:24
 msgid "Check out date and time"
-msgstr "Ausbuchungszeit"
+msgstr "Ausbuchungsbeginn"
 
 #: models.py:25 widgets.py:79
 msgid "Check out expiration date and time"
@@ -122,7 +122,7 @@ msgstr "Benutzer"
 
 #: views.py:36
 msgid "Checkout time and date"
-msgstr "Ausbuchungszeit"
+msgstr "Ausbuchungsbeginn"
 
 #: views.py:37
 msgid "Checkout expiration"
@@ -141,7 +141,7 @@ msgstr "Benutzer: %s"
 #: views.py:55
 #, python-format
 msgid "Check out time: %s"
-msgstr "Ausbuchungszeit: %s"
+msgstr "Ausbuchungsbeginn: %s"
 
 #: views.py:56
 #, python-format

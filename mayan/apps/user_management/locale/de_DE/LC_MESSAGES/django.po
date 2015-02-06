@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-27 16:01-0400\n"
-"PO-Revision-Date: 2015-01-11 22:11+0000\n"
-"Last-Translator: Roberto Rosario\n"
+"PO-Revision-Date: 2015-02-07 00:17+0100\n"
+"Last-Translator: Mathias Behrle <mbehrle@m9s.biz>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/de_DE/)\n"
 "Language: de_DE\n"
@@ -25,6 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #: forms.py:15
 msgid "New password"
@@ -36,35 +37,35 @@ msgstr "Passwort bestätigen"
 
 #: links.py:11 links.py:12 views.py:31
 msgid "Users"
-msgstr ""
+msgstr "Benutzer"
 
 #: links.py:13 links.py:23
 msgid "Edit"
-msgstr ""
+msgstr "Bearbeiten"
 
 #: links.py:14 views.py:96
 msgid "Create new user"
-msgstr ""
+msgstr "Erstellen"
 
 #: links.py:15 links.py:16 links.py:25 links.py:26
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 #: links.py:17 links.py:18
 msgid "Reset password"
-msgstr ""
+msgstr "Passwort"
 
 #: links.py:19 links.py:21 links.py:22 views.py:247
 msgid "Groups"
-msgstr ""
+msgstr "Gruppen"
 
 #: links.py:24 views.py:294
 msgid "Create new group"
-msgstr ""
+msgstr "Erstellen"
 
 #: links.py:27 views.py:251
 msgid "Members"
-msgstr ""
+msgstr "Mitglieder"
 
 #: permissions.py:7
 msgid "User management"
@@ -104,19 +105,19 @@ msgstr "Gruppen löschen"
 
 #: views.py:35
 msgid "Full name"
-msgstr ""
+msgstr "Kompletter Name"
 
 #: views.py:39
 msgid "Email"
-msgstr ""
+msgstr "E-Mail"
 
 #: views.py:43
 msgid "Active"
-msgstr ""
+msgstr "Aktiv"
 
 #: views.py:47
 msgid "Has usable password?"
-msgstr ""
+msgstr "Verwendbares Passwort"
 
 #: views.py:62
 msgid ""
@@ -129,21 +130,21 @@ msgstr ""
 #: views.py:69
 #, python-format
 msgid "User \"%s\" updated successfully."
-msgstr "Benutzer \"%s\" erfolgreich aktualisiert."
+msgstr "Benutzer \"%s\" erfolgreich aktualisiert"
 
 #: views.py:75
 #, python-format
 msgid "Edit user: %s"
-msgstr ""
+msgstr "Benutzer %s bearbeiten"
 
 #: views.py:90
 #, python-format
 msgid "User \"%s\" created successfully."
-msgstr "Benutzer \"%s\" erfolgreich angelegt."
+msgstr "Benutzer \"%s\" erfolgreich angelegt"
 
 #: views.py:111 views.py:163
 msgid "Must provide at least one user."
-msgstr "Es muss mindestens ein Benutzer angegeben werden."
+msgstr "Es muss mindestens ein Benutzer angegeben werden"
 
 #: views.py:121
 msgid ""
@@ -156,7 +157,7 @@ msgstr ""
 #: views.py:124
 #, python-format
 msgid "User \"%s\" deleted successfully."
-msgstr "Benutzer \"%s\" erfolgreich gelöscht."
+msgstr "Benutzer \"%s\" erfolgreich gelöscht"
 
 #: views.py:126
 #, python-format
@@ -175,7 +176,7 @@ msgstr "Sind Sie sich sicher, dass sie die Benutzer löschen möchten: %s?"
 
 #: views.py:174
 msgid "Passwords do not match, try again."
-msgstr "Passwörter stimmen nicht überein, bitte noch einmal versuchen."
+msgstr "Passwörter stimmen nicht überein, bitte noch einmal versuchen"
 
 #: views.py:179
 msgid ""
@@ -188,7 +189,7 @@ msgstr ""
 #: views.py:183
 #, python-format
 msgid "Successfull password reset for user: %s."
-msgstr "Passwort erfolgreich zurückgesetzt für Benutzer %s."
+msgstr "Passwort erfolgreich zurückgesetzt für Benutzer %s"
 
 #: views.py:185
 #, python-format
@@ -210,36 +211,36 @@ msgstr "Passwort zurücksetzen für die Benutzer %s"
 #: views.py:232
 #, python-format
 msgid "Non groups of user: %s"
-msgstr ""
+msgstr "Nichtgruppen von Benutzer %s"
 
 #: views.py:233
 #, python-format
 msgid "Groups of user: %s"
-msgstr ""
+msgstr "Gruppen von Benutzer %s"
 
 #: views.py:269
 #, python-format
 msgid "Group \"%s\" updated successfully."
-msgstr "Gruppe \"%s\" erfolgreich aktualisiert."
+msgstr "Gruppe \"%s\" erfolgreich aktualisiert"
 
 #: views.py:275
 #, python-format
 msgid "Edit group: %s"
-msgstr ""
+msgstr "Gruppe %s bearbeiten"
 
 #: views.py:288
 #, python-format
 msgid "Group \"%s\" created successfully."
-msgstr "Gruppe \"%s\" erfolgreich angelegt."
+msgstr "Gruppe \"%s\" erfolgreich angelegt"
 
 #: views.py:309
 msgid "Must provide at least one group."
-msgstr "Es muss mindestens eine Gruppe angegeben werden."
+msgstr "Es muss mindestens eine Gruppe angegeben werden"
 
 #: views.py:319
 #, python-format
 msgid "Group \"%s\" deleted successfully."
-msgstr "Gruppe \"%s\" erfolgreich gelöscht."
+msgstr "Gruppe \"%s\" erfolgreich gelöscht"
 
 #: views.py:321
 #, python-format
@@ -259,12 +260,12 @@ msgstr "Sind Sie sich sicher, das Sie die Gruppen löschen möchten: %s?"
 #: views.py:366
 #, python-format
 msgid "Non members of group: %s"
-msgstr ""
+msgstr "Nichtmitglieder von Gruppe %s"
 
 #: views.py:367
 #, python-format
 msgid "Members of group: %s"
-msgstr ""
+msgstr "Mitglieder von Gruppe %s"
 
 #~ msgid "Group"
 #~ msgstr "group"
