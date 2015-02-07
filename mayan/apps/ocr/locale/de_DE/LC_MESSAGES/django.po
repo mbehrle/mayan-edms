@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: Mayan EDMS\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-01-27 15:59-0400\n"
-"PO-Revision-Date: 2015-02-06 02:50+0100\n"
+"PO-Revision-Date: 2015-02-07 01:28+0100\n"
 "Last-Translator: Mathias Behrle <mbehrle@m9s.biz>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/projects/p/mayan-"
 "edms/language/de_DE/)\n"
@@ -166,8 +166,8 @@ msgstr "Fehler bei Eintrag %(entry)s: %(error)s"
 #, python-format
 msgid "Are you sure you wish to delete the entry: %(entry)s?"
 msgid_plural "Are you sure you wish to delete these %(count)d entries."
-msgstr[0] "Wollen Sie den Eintrag %(entry)s wirklich löschen?"
-msgstr[1] "Wollen Sie die %(count)d Einträge wirklich löschen?"
+msgstr[0] ""
+msgstr[1] ""
 
 #: views.py:155
 #, python-format
@@ -183,8 +183,8 @@ msgstr "Dokumentenversion ID: %d existiert nicht mehr"
 #, python-format
 msgid "Are you sure you wish to re-queue the entry: %(entry)s?"
 msgid_plural "Are you sure you wish to re-queue these %(count)d entries."
-msgstr[0] "Wollen Sie den Eintrag %(entry)s wirklich erneut einstellen?"
-msgstr[1] "Wollen Sie diese %(count)d Einträge wirklich erneut einstellen?"
+msgstr[0] ""
+msgstr[1] ""
 
 #: parsers/__init__.py:94 parsers/__init__.py:171
 msgid "Text extracted from PDF"
