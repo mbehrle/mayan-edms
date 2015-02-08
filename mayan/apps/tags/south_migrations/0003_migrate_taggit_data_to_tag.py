@@ -5,20 +5,21 @@ from django.db import models
 
 
 class Migration(DataMigration):
+
     def forwards(self, orm):
         "Write your forwards methods here."
         # Note: Don't use "from appname.models import ModelName".
         # Use orm.ModelName to refer to models in this application,
         # and orm['appname.ModelName'] for models in other applications.
 
-        try:
-            from orm.TaggitModel import Tag as TaggitModel
-        except ImportError:
-            pass
-        else:
-            for tag in TaggitModel.objects.all():
-                color = orm.TagProperties.objects.get(tag=tag).color
-                orm.Tag.objects.create(label=tag.name, color=color)
+        sql1 = 'INSERT INTO tags_tag (id, label, color) ' \
+            'SELECT tt.id, tt.name, tp.color ' \
+            'FROM taggit_tag AS tt ' \
+            'INNER JOIN tags_tagproperties AS tp ON tt.id = tp.tag_id;'
+        sql2 = 'INSERT INTO tags_tag_document (tag_id, document_id) ' \
+            'SELECT tti.tag_id, tti.object_id FROM taggit_taggeditem AS tti;'
+        db.execute(sql1)
+        db.execute(sql2)
 
     def backwards(self, orm):
         "Write your backwards methods here."
