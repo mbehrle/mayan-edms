@@ -27,9 +27,6 @@ class Migration(SchemaMigration):
         ))
         db.create_unique(m2m_table_name, ['tag_id', 'document_id'])
 
-        # Changing field 'TagProperties.tag'
-        db.alter_column(u'tags_tagproperties', 'tag_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['tags.Tag']))
-
     def backwards(self, orm):
         # Deleting model 'Tag'
         db.delete_table(u'tags_tag')
