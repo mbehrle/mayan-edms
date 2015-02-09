@@ -15,12 +15,15 @@ class Migration(DataMigration):
 
         try:
             db.start_transaction()
-            sql1 = 'INSERT INTO tags_tag (id, label, color) ' \
-                'SELECT tt.id, tt.name, tp.color ' \
+            sql1 = 'INSERT INTO tags_tag (label, color) ' \
+                'SELECT tt.name, tp.color ' \
                 'FROM taggit_tag AS tt ' \
                 'INNER JOIN tags_tagproperties AS tp ON tt.id = tp.tag_id;'
             sql2 = 'INSERT INTO tags_tag_document (tag_id, document_id) ' \
-                'SELECT tti.tag_id, tti.object_id FROM taggit_taggeditem AS tti;'
+                'SELECT t.id, tti.object_id ' \
+                'FROM taggit_taggeditem AS tti ' \
+                'INNER JOIN taggit_tag AS tt ON tt.id = tti.tag_id ' \
+                'INNER JOIN tags_tag as t ON tt.name = t. label;'
             db.execute(sql1)
             db.execute(sql2)
         except (OperationalError, ProgrammingError):
